@@ -1,0 +1,2222 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Carta Oferta — Protek Corp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',Arial,sans-serif;background:#f4f6f9;color:#111;font-size:14px;min-height:100vh;padding-bottom:48px}
+
+/* ── APP HEADER ── */
+.app-header{background:#fff;border-bottom:1px solid #e4e8ef;padding:10px 24px;display:flex;align-items:center;gap:14px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.app-header-text .subtitle{font-size:12px;color:#888}
+.draft-btns{margin-left:auto;display:flex;gap:8px}
+.btn-draft{background:#f0f4ff;color:#20409A;border:1px solid #c5d0f5;border-radius:5px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif;transition:background .2s}
+.btn-draft:hover{background:#dce6ff}
+
+/* ── WIZARD ── */
+.wizard{max-width:780px;margin:0 auto;padding:0 16px}
+.progress-bar-wrap{display:flex;gap:6px;margin-bottom:8px}
+.progress-seg{flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .3s}
+.progress-seg.done{background:#20409A}
+.progress-seg.active{background:rgba(32,64,154,.5)}
+.progress-label{font-size:12px;color:#666;margin-bottom:14px}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:26px 30px}
+.step{display:none}
+.step.active{display:block}
+.step-title{font-size:16px;font-weight:700;color:#20409A;margin-bottom:18px;font-family:'Assistant',Arial,sans-serif;}
+.step-subtitle{font-size:13px;color:#666;margin-bottom:16px;margin-top:-12px}
+
+/* ── FORM ── */
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;font-weight:600;color:#444;margin-bottom:4px}
+.field label .req{color:#c0392b;margin-left:2px}
+.field label .opt{font-weight:400;color:#aaa;font-size:11px;margin-left:3px}
+.field input[type="text"],.field select,.field textarea{width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:5px;font-size:13px;color:#111;font-family:'Open Sans',Arial,sans-serif;outline:none;background:#fff;transition:border-color .2s}
+.field textarea{resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#20409A}
+.field-error{font-size:12px;color:#c0392b;margin-top:3px;display:none}
+.field-error.visible{display:block}
+.field.has-error input,.field.has-error select{border-color:#c0392b}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.btn-primary{background:#20409A;color:#fff;border:none;border-radius:6px;padding:9px 22px;font-size:13px;cursor:pointer;font-weight:600;font-family:'Open Sans',Arial,sans-serif;transition:background .2s}
+.btn-primary:hover{background:#1a3280}
+.btn-secondary{background:transparent;color:#444;border:1px solid #ccc;border-radius:6px;padding:9px 22px;font-size:13px;cursor:pointer;font-family:'Open Sans',Arial,sans-serif;transition:background .2s}
+.btn-secondary:hover{background:#f0f0f0}
+
+/* ── STEP 2 TSV ── */
+.tsv-hint{font-size:12px;color:#888;margin-bottom:10px}
+/* Toggle switch */
+.toggle-switch{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:22px;transition:.25s}
+.toggle-slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s}
+.toggle-switch input:checked + .toggle-slider{background:#20409A}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px)}
+.tsv-preview{margin-top:8px}
+.inv-section-label{font-size:11px;font-weight:700;color:#20409A;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 5px}
+.tsv-table{width:100%;border-collapse:collapse;font-size:12px}
+.tsv-table th{background:#f0f4ff;color:#20409A;text-align:left;padding:6px 8px;border:1px solid #dde3f0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.tsv-table th.r,.tsv-table td.r{text-align:right;white-space:nowrap}
+.tsv-table td{padding:5px 8px;border:1px solid #eaecf0}
+.tsv-table .subtotal td{background:#f5f7ff;font-size:12px}
+.tsv-table .grand td{font-weight:700;background:#20409A;color:#fff;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── STEP 3 ── */
+.image-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.img-slot{border:2px dashed #ddd;border-radius:8px;background:#fafafa;position:relative;display:flex;flex-direction:column;transition:border-color .2s,background .2s;overflow:hidden}
+.img-slot:hover{border-color:#20409A;background:#f0f4ff}
+.img-slot.has-image{border:1px solid #dde3f0;background:#f5f5f5}
+.img-slot .upload-area{flex:1;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:20px;gap:7px}
+.img-slot.has-image .upload-area{display:none}
+.img-slot .upload-icon{font-size:26px;color:#ccc}
+.img-slot .upload-text{font-size:12px;color:#aaa;text-align:center}
+.img-slot input[type="file"]{display:none}
+.img-slot .img-preview{display:none;width:100%;height:130px;object-fit:contain;background:#f5f5f5}
+.img-slot.has-image .img-preview{display:block}
+.img-slot .slot-fields{padding:7px 9px 9px;display:none;flex-direction:column;gap:5px}
+.img-slot.has-image .slot-fields{display:flex}
+.img-slot .slot-fields input{width:100%;padding:4px 7px;border:1px solid #ddd;border-radius:4px;font-size:12px;outline:none}
+.img-slot .slot-fields input:focus{border-color:#20409A}
+.img-slot .btn-clear{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.45);color:#fff;border:none;border-radius:50%;width:21px;height:21px;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+.img-slot.has-image .btn-clear{display:flex}
+
+/* ── STEP 4 ── */
+.section-block{margin-bottom:22px}
+.section-block-title{font-size:13px;font-weight:700;color:#20409A;padding-bottom:6px;border-bottom:2px solid #eaeefc;margin-bottom:14px}
+.cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cond-group{margin-bottom:16px}
+.cond-group-title{font-size:12px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+.radio-opt,.check-opt{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;margin-bottom:7px;cursor:pointer;line-height:1.45}
+.radio-opt input,.check-opt input{margin-top:3px;accent-color:#20409A;flex-shrink:0}
+.check-mini{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#444;margin-bottom:5px;cursor:pointer;line-height:1.4}
+.check-mini input{margin-top:2px;accent-color:#20409A;flex-shrink:0}
+.extra-field{margin-top:9px}
+.extra-field label{font-size:11px;color:#999;margin-bottom:3px;display:block}
+.extra-field textarea{width:100%;padding:6px 9px;border:1px solid #ddd;border-radius:5px;font-size:12px;font-family:Arial,sans-serif;outline:none;resize:vertical;min-height:52px;color:#333}
+.extra-field textarea:focus{border-color:#20409A}
+.section-divider{border:none;border-top:1px solid #eaeefc;margin:20px 0}
+.custom-show{display:none;margin-top:6px}
+.pago-complement{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.confid-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#333;margin-top:6px}
+.confid-row input{accent-color:#20409A}
+
+/* ── STEP 5 ── */
+.export-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.btn-export{background:#20409A;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:13px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:7px;font-family:'Open Sans',Arial,sans-serif}
+.btn-export:hover{background:#1a3280}
+.preview-wrap{border:1px solid #dde3f0;border-radius:8px;overflow:auto;background:#fff}
+
+/* ══ CARTA ══ */
+.carta{font-family:'Open Sans',Arial,sans-serif;font-size:15px;color:#111;line-height:1.75}
+.carta-header{background:#20409A;padding:18px 26px;display:flex;align-items:center;gap:18px;border-bottom:4px solid #1EB0D5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-header-text{color:#fff}
+.carta-header-text .prop-title{font-size:17px;font-weight:700;letter-spacing:.2px;font-family:'Assistant',Arial,sans-serif;}
+.carta-header-text .client-name{font-size:14px;opacity:.88;margin-top:4px}
+.carta-body{padding:22px 26px}
+.carta-body p{margin-bottom:12px}
+.carta-section{margin-bottom:20px}
+.carta-pill{display:inline-block;background:#20409A;color:#fff;padding:6px 15px;border-radius:5px;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:.3px;font-family:'Assistant',Arial,sans-serif;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-box{border:1px solid #dde3f0;border-radius:7px;padding:13px 16px;margin-bottom:5px;background:#fafcff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-box ul{padding-left:20px}
+.carta-box ul li{margin-bottom:6px}
+.carta-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.alcance-stretch{align-items:stretch;margin-bottom:0}
+/* ── CASOS DE ÉXITO — wizard ── */
+.casos-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.caso-chk{border:1px solid #dde3f0;border-radius:6px;padding:9px 11px;cursor:pointer;display:flex;gap:9px;align-items:flex-start;transition:border-color .15s,background .15s}
+.caso-chk:hover{border-color:#20409A;background:#f5f8ff}
+.caso-chk.sel{border-color:#20409A;background:#eef2ff}
+.caso-chk.dis{opacity:.4;cursor:not-allowed;pointer-events:none}
+.caso-chk input{margin-top:2px;accent-color:#20409A;flex-shrink:0}
+.caso-chk-label{font-size:12px;line-height:1.4}
+.caso-chk-nombre{font-weight:700;color:#20409A;display:block}
+.caso-chk-tipo{color:#888;font-size:11px}
+/* ── CASOS DE ÉXITO — carta ── */
+.caso-card{border-left:4px solid #1EB0D5;border-radius:0 7px 7px 0;background:#fafcff;padding:13px 16px;margin-bottom:14px;page-break-inside:avoid}
+.caso-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.caso-card-nombre{font-size:15px;font-weight:700;color:#20409A;font-family:'Assistant',Arial,sans-serif;}
+.caso-card-badge{font-size:11px;background:#e8ecf8;color:#20409A;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-left:10px;font-weight:600}
+.caso-card-segmento{font-size:12px;color:#888;margin-bottom:7px}
+.caso-card-soluciones{font-size:12px;color:#555;font-style:italic;margin-bottom:7px}
+.caso-card-resumen{font-size:13px;color:#222;margin-bottom:7px;line-height:1.55}
+.caso-resultados{list-style:none;padding:0;margin:0}
+.caso-resultados li{font-size:13px;color:#333;margin-bottom:3px;display:flex;gap:6px;line-height:1.4}
+.caso-resultados li::before{content:"✓";color:#20409A;font-weight:700;flex-shrink:0}
+/* ── CERTIFICACIONES — carta ── */
+.cert-section{margin-bottom:20px;page-break-inside:avoid}
+.cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.cert-item{display:flex;gap:12px;align-items:flex-start;padding:10px 13px;border:1px solid #dde3f0;border-radius:7px;background:#fff}
+.cert-icon{flex-shrink:0;width:46px;height:46px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-align:center;line-height:1.2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cert-icon.iso{background:#20409A;color:#fff}
+.cert-icon.policia{background:#2e5fa3;color:#fff}
+.cert-icon.gptw{background:#c0392b;color:#fff}
+.cert-icon.tecnico{background:#27ae60;color:#fff}
+.cert-item-text .cert-title{font-size:13px;font-weight:700;color:#111;margin-bottom:2px}
+.cert-item-text .cert-sub{font-size:12px;color:#666;line-height:1.4}
+.cert-legal-box{border:1px solid #20409A;border-top:4px solid #1EB0D5;border-radius:7px;padding:14px 18px;margin-top:14px;background:#f7f9ff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid}
+.cert-legal-title{font-size:14px;font-weight:700;color:#20409A;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #dde3f0;font-family:'Assistant',Arial,sans-serif;}
+.cert-legal-text{font-size:13px;color:#333;line-height:1.65;margin-bottom:10px}
+.alcance-stretch > div{display:flex;flex-direction:column}
+.alcance-stretch > div .carta-box{flex:1}
+.plazos-box{columns:2;column-gap:28px}
+.plazos-box .plazos-list{break-inside:avoid}
+.inv-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:5px}
+.inv-table th{background:#eef1fb;color:#20409A;padding:8px 10px;border:1px solid #dde3f0;text-align:left;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.inv-table th.r,.inv-table td.r{text-align:right;white-space:nowrap}
+.inv-table td{padding:7px 10px;border:1px solid #e8e8e8;vertical-align:middle}
+.inv-table .sec-hd td{background:#e8ecf8;font-weight:700;font-size:12px;color:#20409A;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.inv-table .subtotal td{background:#f0f4ff;font-size:13px;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.inv-table .grand td{background:#20409A;color:#fff;font-weight:700;font-size:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-note{font-size:13px;color:#888;margin-top:6px;margin-bottom:14px}
+.carta-equip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:6px}
+.carta-equip-item{border:none;border-radius:8px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.10);background:#fff}
+.carta-equip-img{width:100%;height:190px;object-fit:contain;background:#fff;display:block;padding:10px}
+.carta-equip-name{font-size:14px;font-weight:700;padding:8px 12px 3px;color:#20409A}
+.carta-equip-desc{font-size:13px;color:#555;padding:0 12px 10px;line-height:1.45}
+.equip-section-pagebreak{page-break-before:always;page-break-inside:avoid}
+.alcance-list{list-style:none;padding:0;font-size:14px}
+.alcance-list li{margin-bottom:6px;display:flex;gap:7px;align-items:flex-start;line-height:1.45}
+.alcance-list.si li::before{content:"✓";color:#20409A;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.alcance-list.no li::before{content:"✗";color:#c0392b;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.alcance-list.prev li::before{content:"◆";color:#e67e22;font-weight:700;flex-shrink:0;font-size:11px;margin-top:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.plazos-list{list-style:none;padding:0;font-size:14px}
+.plazos-list li{margin-bottom:7px;line-height:1.5}
+.carta-hr{border:none;border-top:1px solid #e0e4ec;margin:20px 0}
+.carta-firma{text-align:right}
+.carta-firma .firma-nombre{font-size:15px;font-weight:700;color:#20409A;font-family:'Assistant',Arial,sans-serif;}
+.carta-firma .firma-cargo,.carta-firma .firma-empresa{font-size:13px;color:#666;margin-top:2px}
+.carta-confid{font-size:11px;color:#aaa;border-top:1px solid #f0f0f0;padding:10px 0 0;text-align:center;margin-top:18px}
+
+.cot-section-card{border:1px solid #dde3f0;border-radius:8px;padding:16px;margin-bottom:16px;background:#fafcff}
+.cot-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}
+.cot-section-header select{flex:1;max-width:320px}
+.cuota-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.custom-item-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.custom-item-row input{flex:1}
+.beneficio-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.beneficio-row input{flex:1}
+.btn-add-item{background:none;border:1px dashed #20409A;color:#20409A;border-radius:4px;padding:4px 12px;font-size:12px;cursor:pointer;margin-top:4px}
+.btn-add-item:hover{background:#f0f4ff}
+
+@media(max-width:600px){
+  .card{padding:18px 14px}
+  .two-col,.cond-grid,.image-grid,.carta-grid2,.carta-equip-grid,.pago-complement,.three-col{grid-template-columns:1fr 1fr}
+}
+@media print{
+  .inv-section-pagebreak{page-break-before:always}
+  .alcance-section-pagebreak{page-break-before:always}
+  .equip-section-pagebreak{page-break-before:always}
+  .inv-table tr{page-break-inside:avoid}
+  .inv-table .grand{page-break-before:avoid}
+  .inv-table .subtotal{page-break-before:avoid}
+  .firma-block{page-break-inside:avoid;page-break-before:avoid}
+  .carta-box{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- App Header -->
+<header class="app-header">
+  <!-- Logo Protek Corp oficial -->
+  <svg height="44" viewBox="0 0 115.2 38.9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-label="Protek Corp">
+    <style>.lc{fill:#20409A;}</style>
+    <path class="lc" d="M47.6,16.5c0,1,0.5,1.2,2.1,1.3v0.6h-6v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2H49c3.3,0,4.8,1.6,4.8,3.6c0,2.3-1.6,3.7-4.8,3.7h-1.3V16.5z M47.6,12.8h0.7c1.9,0,2.8-1.1,2.8-2.9c0-1.7-0.9-3-2.8-3h-0.7V12.8z"/>
+    <path class="lc" d="M58.8,16.6c0,1,0.2,1.1,1.4,1.2v0.6h-5.3v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h5.5c2.9,0,4.5,1.3,4.5,3.4c0,1.9-1.5,2.9-2.8,3.2l2.6,3.5c0.8,1.1,1.2,1.4,2.1,1.4v0.6h-3.3c-0.5-0.4-0.9-0.9-1.5-1.7l-2.4-3.5h-0.9V16.6z M58.8,6.9v5.5h0.8c1.8,0,2.7-1,2.7-2.8c0-1.6-0.9-2.7-2.8-2.7H58.8z"/>
+    <path class="lc" d="M67.1,12.5c0-4,2.5-6.5,5.8-6.5c3.7,0,5.6,2.8,5.6,6c0,4-2.5,6.5-5.8,6.5C69.1,18.5,67.1,15.7,67.1,12.5 M75.9,12.4c0-2.9-0.9-5.6-3.1-5.6c-2,0-2.9,2.6-2.9,5.4c0,2.9,0.9,5.6,3.1,5.6C75,17.8,75.9,15.2,75.9,12.4"/>
+    <path class="lc" d="M90.6,6.2l0.3,4h-0.6c-1.1-2.6-1.5-3.4-2.9-3.4h-0.9v9.8c0,1,0.4,1,1.6,1.1v0.6h-5.6v-0.6c1.2-0.1,1.6-0.2,1.6-1.1V6.9h-0.9c-1.3,0-1.7,0.8-2.9,3.4h-0.6l0.3-4H90.6z"/>
+    <path class="lc" d="M91.9,17.8c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h9.5l0.1,3.1H101c-0.8-1.9-1.4-2.4-2.7-2.4h-2.4v4.8H98c0.8,0,1-0.5,1.2-1.6h0.6v3.9h-0.6c-0.2-1.1-0.4-1.6-1.2-1.6h-2.2v4c0,0.9,0.5,1.2,1.5,1.2h1.1c1.4,0,1.9-0.7,3-2.8h0.6l-0.5,3.5h-9.7V17.8z"/>
+    <path class="lc" d="M107.2,16.6c0,1,0.2,1.1,1.4,1.2v0.6h-5.3v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h5.3v0.6c-1.2,0.1-1.4,0.2-1.4,1.2V16.6z M113.3,16.5c0.7,0.9,1,1.2,1.9,1.2v0.6h-3.3c-0.5-0.4-1-1.1-1.5-1.7l-3-4.2l4.2-4.4c0.2-0.2,0.4-0.5,0.4-0.7c0-0.3-0.3-0.4-1.3-0.5V6.2h3.9v0.6c-0.7,0-1,0.2-1.6,0.8l-3.5,3.7L113.3,16.5z"/>
+    <path class="lc" d="M48.9,34.2c-1,0-2-0.2-2.8-0.7c-0.9-0.5-1.5-1.2-2.1-2.1c-0.5-0.9-0.8-2.1-0.8-3.5c0-1,0.1-1.9,0.5-2.7c0.3-0.8,0.7-1.5,1.3-2c0.5-0.6,1.1-1,1.8-1.3c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.2,2.1,0.5c0.6,0.3,1.1,0.7,1.5,1.1l-1.4,1.7c-0.3-0.3-0.6-0.5-1-0.7c-0.4-0.2-0.8-0.3-1.2-0.3c-0.6,0-1.1,0.2-1.6,0.5c-0.5,0.3-0.9,0.8-1.1,1.4c-0.3,0.6-0.4,1.3-0.4,2.2c0,0.9,0.1,1.6,0.4,2.2c0.3,0.6,0.6,1.1,1.1,1.4c0.5,0.3,1,0.5,1.6,0.5c0.5,0,1-0.1,1.4-0.3c0.4-0.2,0.8-0.5,1.1-0.8l1.4,1.6c-0.5,0.6-1.1,1-1.8,1.3C50.4,34.1,49.7,34.2,48.9,34.2"/>
+    <path class="lc" d="M59.4,34.2c-1.1,0-2.1-0.3-2.9-0.8c-0.8-0.5-1.5-1.3-1.9-2.2c-0.5-1-0.7-2.1-0.7-3.4c0-1.3,0.2-2.5,0.7-3.4c0.5-0.9,1.1-1.7,1.9-2.2c0.8-0.5,1.8-0.8,2.9-0.8s2.1,0.3,2.9,0.8c0.8,0.5,1.5,1.2,1.9,2.2c0.5,0.9,0.7,2.1,0.7,3.4c0,1.3-0.2,2.5-0.7,3.4c-0.5,1-1.1,1.7-1.9,2.2C61.4,34,60.5,34.2,59.4,34.2 M59.4,32c0.6,0,1.1-0.2,1.5-0.5c0.4-0.3,0.8-0.8,1-1.4c0.2-0.6,0.4-1.4,0.4-2.2s-0.1-1.6-0.4-2.2c-0.2-0.6-0.6-1.1-1-1.4c-0.4-0.3-0.9-0.5-1.5-0.5c-0.6,0-1.1,0.2-1.5,0.5c-0.4,0.3-0.8,0.8-1,1.4c-0.2,0.6-0.3,1.3-0.3,2.2s0.1,1.6,0.3,2.2c0.2,0.6,0.6,1.1,1,1.4C58.3,31.8,58.8,32,59.4,32"/>
+    <path class="lc" d="M67,34V21.7h4.3c0.9,0,1.7,0.1,2.4,0.3c0.7,0.2,1.3,0.6,1.7,1.2c0.4,0.5,0.6,1.3,0.6,2.2c0,0.9-0.2,1.7-0.6,2.3c-0.4,0.6-1,1-1.7,1.3c-0.7,0.3-1.5,0.4-2.4,0.4h-1.8V34H67z M69.6,27.4h1.5c0.8,0,1.4-0.2,1.8-0.5c0.4-0.3,0.6-0.8,0.6-1.4s-0.2-1.1-0.6-1.3c-0.4-0.3-1-0.4-1.8-0.4h-1.5V27.4z M73.7,34l-2.8-5.2l1.8-1.6l3.9,6.9H73.7z"/>
+    <path class="lc" d="M78.2,34V21.7h4.1c0.9,0,1.7,0.1,2.4,0.4c0.7,0.2,1.3,0.6,1.7,1.2c0.4,0.6,0.6,1.3,0.6,2.3c0,0.9-0.2,1.7-0.6,2.3c-0.4,0.6-1,1.1-1.7,1.3c-0.7,0.3-1.5,0.4-2.4,0.4h-1.6V34H78.2z M80.7,27.7h1.4c0.8,0,1.4-0.2,1.8-0.5c0.4-0.3,0.6-0.9,0.6-1.5c0-0.7-0.2-1.2-0.6-1.4c-0.4-0.3-1-0.4-1.9-0.4h-1.4V27.7z"/>
+    <path class="lc" d="M33.4,0H3.3C1.5,0,0,1.5,0,3.3v32.2c0,1.8,1.5,3.3,3.3,3.3h30.1c1.8,0,3.3-1.5,3.3-3.3V3.3C36.8,1.5,35.3,0,33.4,0 M29.7,16.8l-6.9,4.1l6.3-1.6c-0.2,0.5-0.5,1-0.8,1.5c-1.7,2.6-4.6,4.3-8,4.3h-3.9V34H9V6h1.7h9.5c0,0,0.1,0,0.1,0l-7.5,5.1l10.9-4.5c0.3,0.1,0.6,0.3,0.9,0.4l-9.1,6.6L27.2,9c0.2,0.2,0.5,0.5,0.6,0.8l-10,6.3L29,11.8c0.2,0.4,0.3,0.8,0.4,1.2l-9.2,5.4l9.5-2.9C29.8,16,29.8,16.4,29.7,16.8"/>
+  </svg>
+  <div class="app-header-text">
+    <div class="subtitle">Generador de Carta Oferta</div>
+  </div>
+  <div class="draft-btns">
+    <button class="btn-draft" onclick="saveDraft()">💾 Guardar borrador</button>
+    <button class="btn-draft" onclick="loadDraft()">📂 Cargar borrador</button>
+  </div>
+</header>
+
+<div class="wizard">
+  <div class="progress-bar-wrap">
+    <div class="progress-seg" id="seg1"></div><div class="progress-seg" id="seg2"></div>
+    <div class="progress-seg" id="seg3"></div><div class="progress-seg" id="seg4"></div>
+    <div class="progress-seg" id="seg5"></div>
+  </div>
+  <div class="progress-label" id="progressLabel"></div>
+
+  <div class="card">
+
+    <!-- ══ PASO 1 ══ -->
+    <div class="step" id="step1">
+      <div class="step-title">Datos del cliente</div>
+
+      <div class="two-col">
+        <div class="field" id="f-empresa">
+          <label>Empresa cliente <span class="req">*</span></label>
+          <input type="text" id="empresa" placeholder="Ej: Distribuidora ABC S.A." oninput="onEmpresaInput()">
+          <div class="field-error" id="err-empresa">Campo requerido.</div>
+        </div>
+        <div class="field" id="f-ruc">
+          <label>RUC del cliente <span class="opt">opcional</span></label>
+          <input type="text" id="ruc-cliente" placeholder="Ej: 80095329-4" maxlength="20">
+          <div class="field-error" id="err-ruc">Formato inválido. Incluí el guion antes del dígito verificador (Ej: 80095329-4).</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Destinatario / Contacto <span class="opt">opcional</span></label>
+        <input type="text" id="destinatario" placeholder="Ej: Lic. Juan Pérez — Gerencia de Operaciones">
+      </div>
+
+      <div class="two-col">
+        <div class="field" id="f-gc">
+          <label>Gerente de Cuenta <span class="req">*</span></label>
+          <select id="gc" onchange="onGCChange()">
+            <option value="">— Seleccionar —</option>
+            <option value="Diego Portillo">Diego Portillo</option>
+            <option value="Andres Rodriguez">Andres Rodriguez</option>
+            <option value="Jose Lara Castro">Jose Lara Castro</option>
+            <option value="Marco Escobar">Marco Escobar</option>
+            <option value="Nancy Galeano">Nancy Galeano</option>
+            <option value="Vicente Fromherz">Vicente Fromherz</option>
+            <option value="Richard Sanabria">Richard Sanabria</option>
+            <option value="Arthur Guerrero">Arthur Guerrero</option>
+            <option value="Gabriela Acosta">Gabriela Acosta</option>
+            <option value="Susana Salcedo">Susana Salcedo</option>
+            <option value="Bruno Agüero">Bruno Agüero</option>
+            <option value="Sebastian Flores">Sebastian Flores</option>
+          </select>
+          <div class="field-error" id="err-gc">Campo requerido.</div>
+        </div>
+        <div class="field">
+          <label>Email del GC</label>
+          <input type="text" id="gc-email" placeholder="gc@protek.com.py">
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="field" id="f-tipo-prop">
+          <label>Tipo de propuesta <span class="req">*</span></label>
+          <select id="tipo-propuesta" onchange="onTipoPropuestaChange()">
+            <option value="">— Seleccionar —</option>
+            <option value="CAPEX">Provisión de equipos</option>
+            <option value="CAPEX">Provisión + instalación + puesta en marcha</option>
+            <option value="SERVICE">Servicio recurrente</option>
+            <option value="MIXED">Servicio recurrente + provisión inicial</option>
+            <option value="CAPEX">Ampliación / mejora de sistema existente</option>
+            <option value="SERVICE">Mantenimiento preventivo / correctivo</option>
+            <option value="PROJECT">Proyecto ejecutivo / ingeniería / diagnóstico</option>
+            <option value="AUDITORIA">Auditoría Técnica</option>
+            <option value="MANTENIMIENTO">Mantenimiento General Preventivo</option>
+          </select>
+          <div class="field-error" id="err-tipo-prop">Campo requerido.</div>
+        </div>
+        <div class="field" id="f-solucion">
+          <label>Solución principal <span class="req">*</span></label>
+          <select id="solucion" onchange="onSolucionChange()">
+            <option value="">— Seleccionar —</option>
+            <optgroup label="Seguridad Electrónica">
+              <option>Videovigilancia / CCTV</option>
+              <option>Control de Acceso</option>
+              <option>Alarmas de Intrusión</option>
+              <option>Detección de Incendio (PCI)</option>
+              <option>Extinción de Incendio</option>
+              <option>Seguridad Electrónica Integral</option>
+            </optgroup>
+            <optgroup label="Soluciones Integradas / SaaS">
+              <option>Smart Access</option>
+              <option>Monitoreo de Imágenes / SaaS</option>
+              <option>Monitoreo de Obras</option>
+              <option>BMS / Automatización</option>
+            </optgroup>
+            <optgroup label="Servicios">
+              <option>Oficiales de Seguridad Integrados</option>
+              <option>Infraestructura de Redes</option>
+              <option>Mantenimiento Preventivo / Correctivo</option>
+              <option>Evaluación de Riesgos / Ingeniería / Diagnóstico</option>
+            </optgroup>
+          </select>
+          <div class="field-error" id="err-solucion">Campo requerido.</div>
+        </div>
+      </div>
+
+      <div class="field" id="f-empresa-emisora">
+        <label>Empresa emisora <span class="req">*</span></label>
+        <select id="empresa-emisora">
+          <option value="Protek SRL">Protek SRL</option>
+          <option value="SaaS">SaaS</option>
+          <option value="Blue Risk">Blue Risk</option>
+          <option value="IMPCI EAS">IMPCI EAS</option>
+        </select>
+        <div class="field-error" id="err-empresa-emisora">Campo requerido.</div>
+      </div>
+
+      <!-- Textos editables para Solución propuesta y Beneficios clave -->
+      <div id="textos-solucion-block" style="display:none;margin-top:8px;">
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;">
+            Solución propuesta
+            <span style="font-size:11px;color:#888;font-weight:400">(editable — se imprimirá en la carta)</span>
+          </label>
+          <textarea id="texto-descripcion" rows="4" style="font-size:13px;line-height:1.5;" placeholder="Descripción de la solución propuesta..."></textarea>
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;">
+            Beneficios clave
+            <span style="font-size:11px;color:#888;font-weight:400">(editable — se imprimirá en la carta)</span>
+          </label>
+          <div id="beneficios-list" style="margin-bottom:4px"></div>
+          <button type="button" class="btn-add-item" onclick="addBeneficioItem()">＋ Agregar beneficio</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="goNext(1)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 2 ══ -->
+    <div class="step" id="step2">
+      <div class="step-title">Cotización <span style="font-weight:400;font-size:13px;color:#999">(opcional)</span></div>
+
+      <div id="cot-sections-container"></div>
+      <div style="margin-bottom:12px">
+        <button type="button" class="btn-secondary" onclick="addCotSection()" style="font-size:13px">＋ Agregar solución</button>
+      </div>
+      <div id="cot-summary"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goPrev(2)">← Atrás</button>
+        <button class="btn-primary" onclick="goNext(2)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 3 ══ -->
+    <div class="step" id="step3">
+      <div class="step-title">Equipos destacados <span style="font-weight:400;font-size:13px;color:#999">(opcional)</span></div>
+      <div class="step-subtitle">Cargá al menos 6 fotos de los equipos principales. <span style="color:#c0392b;font-size:12px;font-weight:600">* mínimo 6 recomendadas</span></div>
+      <div class="image-grid" id="imageGrid"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goPrev(3)">← Atrás</button>
+        <button class="btn-primary" onclick="goNext(3)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 4 ══ -->
+    <div class="step" id="step4">
+      <div class="step-title">Condiciones comerciales</div>
+
+      <!-- Forma de pago + Plazos -->
+      <div class="cond-grid section-block">
+        <div>
+          <div class="section-block-title">Forma de pago</div>
+          <div class="field">
+            <label>Anticipo (%)</label>
+            <input type="number" id="pago-anticipo" min="0" max="100" placeholder="Ej: 50" oninput="onPagoCalcChange()" style="max-width:120px">
+          </div>
+          <div id="pago-saldo-block" style="display:none;margin-top:8px">
+            <p style="font-size:13px;margin:4px 0 8px">Saldo: <strong id="pago-saldo-pct">0</strong>%</p>
+            <div class="field">
+              <label>Distribución del saldo</label>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="unica" checked onchange="onPagoSaldoTipo()"> En una sola cuota</label>
+                <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="cuotas" onchange="onPagoSaldoTipo()"> En cuotas personalizadas</label>
+              </div>
+            </div>
+            <div id="pago-cuotas-block" style="display:none;margin-top:8px">
+              <div id="pago-cuotas-list"></div>
+              <button type="button" class="btn-secondary" style="font-size:12px;padding:4px 12px;margin-top:4px" onclick="addPagoCuota()">＋ Agregar cuota</button>
+              <div id="pago-cuotas-status" style="margin-top:6px;font-size:12px;font-weight:600"></div>
+            </div>
+          </div>
+          <!-- IVA y nota -->
+          <div class="pago-complement">
+            <div class="field">
+              <label>IVA</label>
+              <select id="pago-iva">
+                <option value="IVA incluido">Incluido</option>
+                <option value="IVA no incluido">No incluido</option>
+                <option value="IVA a definir">A definir</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Nota adicional de pago <span class="opt">opcional</span></label>
+              <input type="text" id="pago-nota" placeholder="Ej: Mora según política vigente.">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-block">
+            <div class="section-block-title">Plazos</div>
+            <div class="two-col">
+              <div class="field">
+                <label>Plazo de importación de equipos</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="number" id="pe-num" min="1" placeholder="Nro" style="max-width:80px">
+                  <select id="pe-unit">
+                    <option value="días">días</option>
+                    <option value="semanas">semanas</option>
+                    <option value="meses" selected>meses</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Plazo de instalación / ejecución</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="number" id="pi-num" min="1" placeholder="Nro" style="max-width:80px">
+                  <select id="pi-unit">
+                    <option value="días">días</option>
+                    <option value="semanas">semanas</option>
+                    <option value="meses" selected>meses</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Garantías -->
+          <div class="two-col" style="gap:8px">
+            <div class="field">
+              <label>Garantía de equipos</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="number" id="gar-eq-num" min="1" placeholder="Nro" style="max-width:80px">
+                <select id="gar-eq-unit">
+                  <option value="meses" selected>meses</option>
+                  <option value="años">años</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Garantía de mano de obra</label>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label style="font-weight:400"><input type="radio" name="gar-mo-rad" value="2 meses"> 2 meses</label>
+                <label style="font-weight:400"><input type="radio" name="gar-mo-rad" value="3 meses"> 3 meses</label>
+                <label style="font-weight:400"><input type="radio" name="gar-mo-rad" value="6 meses"> 6 meses</label>
+                <label style="font-weight:400"><input type="radio" name="gar-mo-rad" value="12 meses"> 12 meses</label>
+              </div>
+            </div>
+          </div>
+          <!-- Condicionantes -->
+          <div class="cond-group" style="margin-top:4px">
+            <div class="cond-group-title">Condicionantes del plazo</div>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a aprobación técnica final."> Sujeto a aprobación técnica final</label>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a relevamiento definitivo en sitio."> Sujeto a relevamiento definitivo</label>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a disponibilidad de stock."> Sujeto a disponibilidad de stock</label>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a importación / disponibilidad de fábrica."> Sujeto a importación / fábrica</label>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a condiciones de obra civil, eléctrica y red."> Sujeto a obras previas (civil/eléctrica/red)</label>
+            <label class="check-mini"><input type="checkbox" class="cond-plazo" value="Sujeto a acceso coordinado al sitio en horarios acordados."> Sujeto a acceso coordinado al sitio</label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Alcance -->
+      <div class="section-block">
+        <div class="section-block-title">Alcance de trabajos — <span id="alcance-sol-label" style="font-weight:400;color:#555"></span></div>
+        <div class="cond-grid">
+          <div>
+            <div class="cond-group-title">Incluye</div>
+            <div id="alcance-si-list"><!-- generado dinámicamente --></div>
+            <div class="extra-field">
+              <div id="alcance-si-custom-list" class="custom-items-list" style="margin-top:8px"></div>
+              <button type="button" class="btn-add-item" onclick="addCustomItem('alcance-si')">＋ Agregar ítem</button>
+            </div>
+          </div>
+          <div>
+            <div class="cond-group-title">No incluye</div>
+            <div id="alcance-no-list"><!-- generado dinámicamente --></div>
+            <div class="extra-field">
+              <div id="alcance-no-custom-list" class="custom-items-list" style="margin-top:8px"></div>
+              <button type="button" class="btn-add-item" onclick="addCustomItem('alcance-no')">＋ Agregar ítem</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Condiciones previas + Beneficio adicional -->
+      <div class="cond-grid section-block">
+        <div>
+          <div class="section-block-title">Condiciones previas del cliente</div>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Disponibilidad de energía eléctrica en el sitio."> Disponibilidad de energía en el sitio</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Red de datos / conectividad disponible."> Red de datos / conectividad disponible</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Accesibilidad al sitio en horarios coordinados."> Accesibilidad al sitio en horarios coordinados</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Obra civil terminada y lista para intervención."> Obra civil terminada</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Permisos de ingreso y trabajo vigentes."> Permisos de ingreso y trabajo</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Punto de montaje definido y accesible."> Punto de montaje definido y accesible</label>
+          <label class="check-mini"><input type="checkbox" class="cond-prev" value="Acompañamiento del responsable del cliente durante pruebas y recepción."> Acompañamiento en pruebas y recepción</label>
+          <div class="extra-field">
+            <div id="cond-prev-custom-list" class="custom-items-list" style="margin-top:8px"></div>
+            <button type="button" class="btn-add-item" onclick="addCustomItem('cond-prev')">＋ Agregar ítem</button>
+          </div>
+        </div>
+        <div>
+          <div class="section-block-title">Beneficio adicional sin costo <span style="font-weight:400;color:#aaa;font-size:11px">opcional</span></div>
+          <div class="field">
+            <textarea id="beneficio-adicional" rows="5"
+              placeholder="Ej: Incluimos sin costo adicional la capacitación del personal técnico, visita de verificación a los 30 días de la puesta en marcha, y soporte remoto durante los primeros 60 días."></textarea>
+          </div>
+          <div class="confid-row">
+            <input type="checkbox" id="incluir-confid">
+            <label for="incluir-confid" style="cursor:pointer;font-size:13px">Incluir nota de confidencialidad en la carta</label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+      <!-- Casos de Éxito -->
+      <div class="section-block">
+        <div class="section-block-title">Casos de Éxito <span style="font-weight:400;color:#aaa;font-size:11px">opcional — máx. 3</span></div>
+        <div style="font-size:12px;color:#888;margin-bottom:10px">Seleccioná hasta 3 para incluir en la propuesta</div>
+        <div class="casos-check-grid" id="casosCheckGrid"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goPrev(4)">← Atrás</button>
+        <button class="btn-primary" onclick="goNext(4)">Vista previa →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 5 ══ -->
+    <div class="step" id="step5">
+      <div class="step-title">Vista previa y exportación</div>
+      <div class="export-bar">
+        <button class="btn-export" onclick="exportPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Exportar PDF
+        </button>
+      </div>
+      <div class="preview-wrap"><div id="cartaPreview" class="carta"></div></div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goPrev(5)">← Atrás</button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /wizard -->
+
+<script>
+// ═══ STATE ════════════════════════════════════════════════════
+const state = {
+  currentStep: 1,
+  images: [null, null, null, null, null, null],
+  investData: null,
+  alcanceSolucion: null,
+  casosSeleccionados: [],
+  showMatDetalle: false,
+  cotSections: []
+};
+
+// ═══ CASOS DE ÉXITO DB ════════════════════════════════════════
+const CASOS_DB = [
+  { id:0, cliente:"Grupo Toyotoshi – Casa Matriz", tipoCaso:"Sistemas Integrados", segmento:"Corporativo / Automotriz",
+    soluciones:"Detección de incendios, CCTV, control de accesos por reconocimiento facial, sala de monitoreo central",
+    resumen:"Integración y gestión centralizada de los sistemas críticos del complejo desde una sala de monitoreo central.",
+    resultados:["Diseño y montaje de sala de control central","Control y monitoreo del sistema de detección de incendios","Monitoreo y seguridad de todo el predio","Gestión integral de CCTV y control de accesos desde plataforma integrada"] },
+  { id:1, cliente:"Complejo World Trade Center (WTC)", tipoCaso:"Optimización y Eficiencia", segmento:"Corporativo / Complejo empresarial",
+    soluciones:"CCTV, control de accesos, detección de incendios direccionable por torre, monitoreo centralizado",
+    resumen:"Implementación de seguridad electrónica integral del complejo, con paneles de incendio interconectados en red y verificación remota desde caseta central.",
+    resultados:["Diseño y montaje de sala de control central","Control y monitoreo de detección de incendios","Monitoreo del predio desde sala central","Gestión integral de CCTV y accesos desde centro de monitoreo"] },
+  { id:2, cliente:"Paseo La Galería – Blue Tower Ventures", tipoCaso:"Centro Corporativo Modelo", segmento:"Corporativo / Uso mixto",
+    soluciones:"CCTV, control de accesos, plataforma única de gestión, control de visitantes, centro de inteligencia operacional",
+    resumen:"Implementación de una solución integral de seguridad electrónica para el complejo, basada en una plataforma única con tecnologías de vanguardia.",
+    resultados:["Plataforma de seguridad integral para el complejo","Centro de inteligencia operacional propio","Eficiencia en diseño y monitoreo CCTV","Solución de control de visitantes y accesos a torres"] },
+  { id:3, cliente:"Edificio Jade Park", tipoCaso:"Un Edificio Inteligente", segmento:"Residencial premium / Edificio inteligente",
+    soluciones:"Automatización, integración de subsistemas, control energético, manejo de bombas y tanques, control de visitantes, monitoreo",
+    resumen:"Automatización e integración del complejo habitacional con control inteligente en tiempo real de distintos subsistemas.",
+    resultados:["Control de consumo energético","Eficiencia en manejo de bombas y tanques de agua","Control de visitantes y proveedores","Monitoreo y seguridad en todo el predio"] },
+  { id:4, cliente:"Hotel Palmaroga", tipoCaso:"Un Hotel Integrado", segmento:"Hotelería",
+    soluciones:"Detección de incendios, CCTV, red de telefonía, intercomunicación",
+    resumen:"Integración y control de sistemas críticos del hotel para operación y seguridad centralizada.",
+    resultados:["Control y monitoreo del sistema de detección de incendios","Monitoreo y seguridad de todo el predio","Monitoreo y control del sistema de telefonía e intercomunicación"] },
+  { id:5, cliente:"Banco GNB", tipoCaso:"Un Banco Moderno", segmento:"Financiero / Bancario",
+    soluciones:"Control de funcionarios y visitas, CCTV, automatización e integración de subsistemas, monitoreo de sucursales",
+    resumen:"Integración del control de personas con CCTV y automatización de subsistemas en casa matriz y sucursales a nivel nacional.",
+    resultados:["Control de consumo energético","Control de visitantes y proveedores","Monitoreo y seguridad del predio","Monitoreo y seguimiento de sucursales en todo el país"] },
+  { id:6, cliente:"Conmebol – Sede Central", tipoCaso:"Sistemas Integrados", segmento:"Institucional / Corporativo",
+    soluciones:"Detección de incendios, CCTV, control de accesos por reconocimiento dactilar, sala de monitoreo central",
+    resumen:"Centralización del manejo y control de los sistemas críticos del complejo desde una sala de monitoreo central.",
+    resultados:["Diseño y montaje de sala de control central","Control y monitoreo de detección de incendios","Monitoreo y seguridad de todo el predio","Gestión integral de CCTV y accesos desde plataforma integrada"] },
+  { id:7, cliente:"Itaipú Binacional", tipoCaso:"La Hidroeléctrica Modelo", segmento:"Infraestructura crítica / Industrial",
+    soluciones:"Seguridad interna y perimetral, CCTV, control de accesos, centro de inteligencia operacional, control perimetral por fibra óptica",
+    resumen:"Renovación tecnológica del sistema de seguridad del área industrial de la represa mediante soluciones de vanguardia.",
+    resultados:["Plataforma de seguridad integral para el área industrial","Centro de inteligencia operacional implementado","Eficiencia en diseño y monitoreo de CCTV y control de accesos","Optimización y reemplazo de seguridad física por tecnología inteligente"] }
+];
+
+function buildCasosGrid() {
+  const g = document.getElementById('casosCheckGrid'); if (!g) return;
+  g.innerHTML = '';
+  const sel = state.casosSeleccionados;
+  CASOS_DB.forEach(c => {
+    const checked = sel.includes(c.id);
+    const disabled = !checked && sel.length >= 3;
+    const div = document.createElement('label');
+    div.className = 'caso-chk' + (checked ? ' sel' : '') + (disabled ? ' dis' : '');
+    div.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} onchange="toggleCaso(${c.id},this)">
+      <span class="caso-chk-label"><span class="caso-chk-nombre">${c.cliente}</span><span class="caso-chk-tipo">${c.tipoCaso} · ${c.segmento}</span></span>`;
+    g.appendChild(div);
+  });
+}
+function toggleCaso(id, cb) {
+  if (cb.checked) {
+    if (state.casosSeleccionados.length < 3) state.casosSeleccionados.push(id);
+  } else {
+    state.casosSeleccionados = state.casosSeleccionados.filter(x => x !== id);
+  }
+  buildCasosGrid();
+}
+buildCasosGrid();
+const STEP_NAMES = ['Datos del cliente','Cotización','Equipos','Condiciones','Vista previa'];
+
+// ═══ GC DATA ══════════════════════════════════════════════════
+const GC_DATA = {
+  "Diego Portillo":   { cargo: "Gerente de Cuentas", email: "dportillo@protek.com.py" },
+  "Andres Rodriguez": { cargo: "Gerente de Cuentas", email: "arodriguez@protek.com.py" },
+  "Jose Lara Castro": { cargo: "Gerente de Cuentas", email: "jlaracastro@protek.com.py" },
+  "Marco Escobar":    { cargo: "Gerente de Cuentas", email: "mescobar@protek.com.py" },
+  "Nancy Galeano":    { cargo: "Gerente de Cuentas", email: "ngaleano@protek.com.py" },
+  "Vicente Fromherz": { cargo: "Gerente de Cuentas", email: "vfromherz@protek.com.py" },
+  "Richard Sanabria": { cargo: "Gerente de Cuentas", email: "rsanabria@protek.com.py" },
+  "Arthur Guerrero":  { cargo: "Gerente de Cuentas", email: "aguerrero@protek.com.py" },
+  "Gabriela Acosta":  { cargo: "Gerente de Cuentas", email: "gacosta@protek.com.py" },
+  "Susana Salcedo":   { cargo: "Gerente de Cuentas", email: "ssalcedo@protek.com.py" },
+  "Bruno Agüero":     { cargo: "Gerente de Cuentas", email: "baguero@protek.com.py" },
+  "Sebastian Flores": { cargo: "Gerente de Cuentas", email: "sflores@protek.com.py" }
+};
+
+function onGCChange() {
+  const name = document.getElementById('gc').value;
+  const info = GC_DATA[name];
+  if (info) {
+    document.getElementById('gc-email').value = info.email;
+  }
+  // Clear errors
+  document.getElementById('err-gc').classList.remove('visible');
+  document.getElementById('f-gc').classList.remove('has-error');
+}
+
+// ═══ PROGRESS / NAVIGATION ═══════════════════════════════════
+function updateProgress(n) {
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById('seg'+i);
+    s.classList.remove('done','active');
+    if (i < n) s.classList.add('done');
+    else if (i === n) s.classList.add('active');
+  }
+  document.getElementById('progressLabel').textContent = `Paso ${n} de 5 — ${STEP_NAMES[n-1]}`;
+}
+function showStep(n) {
+  for (let i = 1; i <= 5; i++)
+    document.getElementById('step'+i).classList.toggle('active', i === n);
+  state.currentStep = n;
+  updateProgress(n);
+  if (n === 4) initStep4();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function goPrev(from) { showStep(from - 1); }
+function goNext(from) {
+  if (from === 1 && !validateStep1()) return;
+  if (from === 4) { buildCarta(); showStep(5); return; }
+  showStep(from + 1);
+}
+
+// ═══ STEP 1 ═══════════════════════════════════════════════════
+function validateStep1() {
+  let ok = true;
+  [['empresa','f-empresa','err-empresa'],
+   ['gc','f-gc','err-gc'],
+   ['solucion','f-solucion','err-solucion'],
+   ['tipo-propuesta','f-tipo-prop','err-tipo-prop']].forEach(([id,fid,eid]) => {
+    const v = document.getElementById(id).value.trim();
+    document.getElementById(eid).classList.toggle('visible', !v);
+    document.getElementById(fid).classList.toggle('has-error', !v);
+    if (!v) ok = false;
+  });
+  // RUC validation (optional but format-checked)
+  const rucEl = document.getElementById('ruc-cliente');
+  const rucVal = rucEl.value.trim();
+  const rucInvalid = rucVal.length > 0 && !/^\d+[-]\d+$/.test(rucVal);
+  document.getElementById('err-ruc').classList.toggle('visible', rucInvalid);
+  document.getElementById('f-ruc').classList.toggle('has-error', rucInvalid);
+  if (rucInvalid) ok = false;
+  return ok;
+}
+
+// Live validation
+['empresa','solucion','tipo-propuesta'].forEach(id => {
+  const map = { 'empresa':['f-empresa','err-empresa'],
+    'solucion':['f-solucion','err-solucion'], 'tipo-propuesta':['f-tipo-prop','err-tipo-prop'] };
+  document.getElementById(id).addEventListener('input', () => {
+    const [fid,eid] = map[id];
+    document.getElementById(eid).classList.remove('visible');
+    document.getElementById(fid).classList.remove('has-error');
+  });
+});
+document.getElementById('ruc-cliente').addEventListener('input', function() {
+  const v = this.value.trim();
+  const invalid = v.length > 0 && !/^\d+[-]\d+$/.test(v);
+  document.getElementById('err-ruc').classList.toggle('visible', invalid);
+  document.getElementById('f-ruc').classList.toggle('has-error', invalid);
+});
+
+function onTipoPropuestaChange() { /* hook for future dynamic pago logic */ }
+
+function onEmpresaInput() {
+  // Re-populate description text when empresa changes (if not manually edited)
+  const sol    = document.getElementById('solucion').value;
+  const descEl = document.getElementById('texto-descripcion');
+  if (!sol || !descEl) return;
+  const empresa = document.getElementById('empresa').value.trim() || '[Empresa]';
+  const textos  = getTextosCarta(sol, empresa);
+  // Only auto-update if the current value matches what getTextosCarta would generate
+  // (i.e., hasn't been manually edited to something different)
+  const prevTextos = getTextosCarta(sol, descEl.dataset.lastEmpresa || '');
+  if (!descEl.dataset.lastEmpresa || descEl.value.trim() === prevTextos.descripcion) {
+    descEl.value = textos.descripcion;
+  }
+  descEl.dataset.lastEmpresa = empresa;
+}
+
+function onSolucionChange() {
+  const sol   = document.getElementById('solucion').value;
+  const block = document.getElementById('textos-solucion-block');
+  const descEl = document.getElementById('texto-descripcion');
+  if (!sol) {
+    if (block) block.style.display = 'none';
+    return;
+  }
+  const empresa = document.getElementById('empresa').value.trim() || '[Empresa]';
+  const textos  = getTextosCarta(sol, empresa);
+  if (descEl) descEl.value = textos.descripcion;
+  // Update beneficios dynamic list
+  const benefList = document.getElementById('beneficios-list');
+  if (benefList) {
+    benefList.innerHTML = '';
+    textos.beneficios.forEach(b => addBeneficioItem(b));
+  }
+  if (block) block.style.display = 'block';
+}
+
+function onMatDetalleChange(checked) {
+  state.showMatDetalle = checked;
+  // Refresh all cot section previews
+  state.cotSections.forEach(s => { if (s.raw) updateCotPreview(s.id); });
+}
+
+function onMonedaChange() {
+  // kept as dead code for backward compat — currency is now always USD
+}
+
+// ═══ COT SECTIONS ═══════════════════════════════════════════
+let cotSectionCounter = 0;
+
+function getCotSolOptions() {
+  return `<option value="">— Tipo de solución —</option>
+    <optgroup label="Seguridad Electrónica">
+      <option>Videovigilancia / CCTV</option>
+      <option>Control de Acceso</option>
+      <option>Alarmas de Intrusión</option>
+      <option>Detección de Incendio (PCI)</option>
+      <option>Extinción de Incendio</option>
+      <option>Seguridad Electrónica Integral</option>
+    </optgroup>
+    <optgroup label="Soluciones Integradas / SaaS">
+      <option>Smart Access</option>
+      <option>Monitoreo de Imágenes / SaaS</option>
+      <option>Monitoreo de Obras</option>
+      <option>BMS / Automatización</option>
+    </optgroup>
+    <optgroup label="Servicios">
+      <option>Oficiales de Seguridad Integrados</option>
+      <option>Infraestructura de Redes</option>
+      <option>Mantenimiento Preventivo / Correctivo</option>
+      <option>Evaluación de Riesgos / Ingeniería / Diagnóstico</option>
+    </optgroup>`;
+}
+
+function addCotSection() {
+  const id = ++cotSectionCounter;
+  state.cotSections.push({ id, solucion: '', raw: '', inv: null, moneda: 'USD' });
+  renderCotSections();
+}
+
+function removeCotSection(id) {
+  state.cotSections = state.cotSections.filter(s => s.id !== id);
+  renderCotSections();
+}
+
+function renderCotSections() {
+  const container = document.getElementById('cot-sections-container');
+  if (!container) return;
+  container.innerHTML = '';
+  state.cotSections.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'cot-section-card';
+    const canRemove = state.cotSections.length > 1;
+    card.innerHTML = `
+      <div class="cot-section-header">
+        <select id="cot-sol-${sec.id}" onchange="onCotSolChange(${sec.id})">${getCotSolOptions()}</select>
+        <select id="cot-mon-${sec.id}" onchange="onCotMonChange(${sec.id})" style="max-width:140px;flex-shrink:0">
+          <option value="USD">USD — Dólares</option>
+          <option value="PYG">Gs. — Guaraníes</option>
+        </select>
+        ${canRemove ? `<button type="button" class="btn-secondary" style="font-size:12px;padding:4px 10px;color:#c0392b;border-color:#c0392b;flex-shrink:0" onclick="removeCotSection(${sec.id})">✕ Eliminar</button>` : ''}
+      </div>
+      <textarea id="cot-tsv-${sec.id}" style="width:100%;box-sizing:border-box;min-height:100px;font-family:monospace;font-size:12px" placeholder="Pegá la tabla de cotización aquí (separado por tabulaciones)..."></textarea>
+      <div id="cot-preview-${sec.id}" class="tsv-preview"></div>
+    `;
+    container.appendChild(card);
+    const solEl = document.getElementById('cot-sol-' + sec.id);
+    const monEl = document.getElementById('cot-mon-' + sec.id);
+    const tsvEl = document.getElementById('cot-tsv-' + sec.id);
+    if (solEl && sec.solucion) solEl.value = sec.solucion;
+    if (monEl && sec.moneda) monEl.value = sec.moneda;
+    if (tsvEl) {
+      if (sec.raw) tsvEl.value = sec.raw;
+      tsvEl.addEventListener('input', function() {
+        const s = state.cotSections.find(x => x.id === sec.id);
+        if (s) s.raw = this.value.trim();
+        updateCotPreview(sec.id);
+      });
+      if (sec.raw) updateCotPreview(sec.id);
+    }
+  });
+  updateCotSummary();
+}
+
+function onCotSolChange(id) {
+  const s = state.cotSections.find(x => x.id === id);
+  const el = document.getElementById('cot-sol-' + id);
+  if (s && el) s.solucion = el.value;
+  updateCotSummary();
+}
+
+function onCotMonChange(id) {
+  const s = state.cotSections.find(x => x.id === id);
+  const el = document.getElementById('cot-mon-' + id);
+  if (s && el) { s.moneda = el.value; updateCotPreview(id); }
+}
+
+function updateCotPreview(id) {
+  const s = state.cotSections.find(x => x.id === id);
+  if (!s) return;
+  const prev = document.getElementById('cot-preview-' + id);
+  if (!s.raw) { s.inv = null; if (prev) prev.innerHTML = ''; updateCotSummary(); return; }
+  s.inv = parseTSV(s.raw);
+  const inv = s.inv;
+  if (!prev) return;
+  if (!inv.equipos.length && !inv.moTotal && !inv.matTotal) {
+    prev.innerHTML = '<p style="font-size:12px;color:#c0392b;margin-top:8px;">No se detectaron ítems válidos. Verificá el formato.</p>';
+    s.inv = null; updateCotSummary(); return;
+  }
+  const monLabel = s.moneda === 'PYG' ? 'Gs. (Guaraníes)' : 'USD';
+  prev.innerHTML = buildInvTable(inv, 'tsv-table', s.moneda).html + `<div style="font-size:11px;color:#888;margin-top:4px">* Valores en ${monLabel}, IVA incluido.</div>`;
+  updateCotSummary();
+}
+
+function updateCotSummary() {
+  const summaryEl = document.getElementById('cot-summary');
+  if (!summaryEl) return;
+  const withData = state.cotSections.filter(s => s.inv && (s.inv.equipos.length > 0 || s.inv.moTotal > 0 || s.inv.matTotal > 0));
+  if (withData.length < 2) { summaryEl.innerHTML = ''; return; }
+  const currencies = [...new Set(withData.map(s => s.moneda || 'USD'))];
+  const mixedCurrency = currencies.length > 1;
+  let rows = '';
+  // Per-currency totals for grand total row(s)
+  const totByCurrency = {};
+  withData.forEach(s => {
+    const mon = s.moneda || 'USD';
+    const { money } = getCurrencyInfo(mon);
+    const t = s.inv.equipos.reduce((a,r) => a + r.total, 0) + s.inv.moTotal + s.inv.matTotal;
+    totByCurrency[mon] = (totByCurrency[mon] || 0) + t;
+    rows += `<tr><td>${s.solucion || 'Sin nombre'}</td><td class="r">${money(t)}</td></tr>`;
+  });
+  if (mixedCurrency) {
+    // Show one grand total row per currency
+    Object.entries(totByCurrency).forEach(([mon, total]) => {
+      const { money } = getCurrencyInfo(mon);
+      rows += `<tr class="grand"><td><strong>Total ${mon}</strong></td><td class="r"><strong>${money(total)}</strong></td></tr>`;
+    });
+  } else {
+    const mon = currencies[0];
+    const { money } = getCurrencyInfo(mon);
+    rows += `<tr class="grand"><td><strong>Total General</strong></td><td class="r"><strong>${money(totByCurrency[mon])}</strong></td></tr>`;
+  }
+  summaryEl.innerHTML = `<div class="inv-section-label" style="margin-top:8px">Resumen consolidado</div><table class="tsv-table" style="margin-top:6px"><thead><tr><th>Solución</th><th class="r">Subtotal</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function initCotSections() {
+  if (state.cotSections.length === 0) addCotSection();
+  else renderCotSections();
+}
+
+// ═══ STEP 2 — TSV ═════════════════════════════════════════════
+function parseNumES(s) {
+  if (!s) return 0;
+  s = String(s).trim().replace(/\s/g, '');
+  if (!s || s === '-') return 0;
+  return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+}
+
+// Convierte "DESCRIPCION EN MAYUSCULA" → "Descripción en Mayúscula" solo si está en ALL CAPS
+function toTitleCase(s) {
+  if (!s) return s;
+  // Si ya tiene minúsculas, no tocarlo
+  if (s !== s.toUpperCase()) return s;
+  const skip = new Set(['de','del','la','el','los','las','y','o','en','a','con','para','por','un','una','e','al']);
+  return s.toLowerCase().split(' ').map((w, i) => {
+    if (!w) return w;
+    if (i > 0 && skip.has(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+
+function getCurrencyInfo(moneda) {
+  if (moneda === 'PYG') {
+    const fmt = n => Math.round(n).toLocaleString('es-PY');
+    return { sym: 'Gs.', fmt, money: n => 'Gs. ' + fmt(n), isPYG: true };
+  }
+  const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return { sym: 'USD', fmt, money: n => 'USD ' + fmt(n), isPYG: false };
+}
+
+// Keep for backward compat
+function fmtUSD(n) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseTSV(raw) {
+  const lines = raw.split('\n').map(l => l.split('\t').map(c => (c||'').trim()));
+
+  // ── Format detection ──────────────────────────────────────────
+  // Format A (original): ITEM | SKU | DESCRIPCION | CANT | P.UNIT | TOTAL  (6 cols, col[0]=item#)
+  // Format B (new):      (empty) | DESCRIPCION | CANT | P.UNIT | TOTAL  (5 cols, col[0] always empty)
+  let formatB = false;
+  for (const cols of lines) {
+    if (cols.length < 2) continue;
+    const c0 = cols[0], c1 = cols[1] || '';
+    if (c0 === '' && c1 && !/DESCRIPCION/i.test(c1)) { formatB = true; break; }
+    if (c0 && c0 !== 'ITEM' && !isNaN(parseInt(c0)))  { formatB = false; break; }
+  }
+
+  const equipos = [];
+  const matItems = [];
+  let moTotal = 0, matTotal = 0;
+  let section = 'equipos'; // used by Format A
+
+  // Patterns for Mano de Obra / Materiales in Format B (flat list)
+  const isMO  = s => /^(mano\s+de\s+obra|movilidad|viatico|courrier|seguro)/i.test(s);
+  const isMat = s => /^materiales/i.test(s);
+
+  for (const cols of lines) {
+    if (formatB) {
+      // Format B: col[0]='', col[1]=desc, col[2]=qty, col[3]=punit, col[4]=total
+      const desc  = cols[1] || '';
+      const qty   = cols[2] || '';
+      const punit = cols[3] || '';
+      const tot   = cols[4] || '';
+      if (!desc) continue;
+      if (/^DESCRIPCION/i.test(desc)) continue; // header row
+      const total = parseNumES(tot);
+      if (!total) continue; // section header or zero row
+      if (isMO(desc))        moTotal  += total;
+      else if (isMat(desc)) { matTotal += total; matItems.push({ desc: toTitleCase(desc), cantidad: qty, precioUnit: parseNumES(punit), total }); }
+      else equipos.push({ desc: toTitleCase(desc), cantidad: qty, precioUnit: parseNumES(punit), total });
+    } else {
+      // Format A: col[0]=item, col[1]=SKU, col[2]=desc, col[3]=qty, col[4]=punit, col[5]=total
+      const col0 = cols[0] || '';
+      const col2 = cols[2] || '';
+      const col3 = cols[3] || '';
+      const col4 = cols[4] || '';
+      const col5 = cols[5] || '';
+      if (/^MANO\s+DE\s+OBRA$/i.test(col0))  { section = 'mo';  continue; }
+      if (/^MATERIALES?$/i.test(col0))        { section = 'mat'; continue; }
+      if (col0 === 'ITEM') continue;
+      if (col2.toUpperCase().startsWith('SOLUCION DE')) continue;
+      if (!col2) continue;
+      const total = parseNumES(col5);
+      if (!total) continue;
+      if (section === 'equipos') {
+        equipos.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total });
+      } else if (section === 'mo')  { moTotal  += total; }
+      else if (section === 'mat')   { matTotal += total; matItems.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total }); }
+    }
+  }
+  return { equipos, moTotal, matTotal, matItems };
+}
+
+function buildInvTable(inv, cls, moneda) {
+  const { sym, fmt, money } = getCurrencyInfo(moneda);
+  const eqTotal = inv.equipos.reduce((s,r) => s+r.total, 0);
+  const grand   = eqTotal + inv.moTotal + inv.matTotal;
+  const hasEq   = inv.equipos.length > 0;
+  const hasMix  = inv.moTotal > 0 || inv.matTotal > 0;
+  let h = '';
+
+  // Una sola tabla para evitar saltos de página entre tablas separadas
+  if (hasEq) {
+    h += `<div class="inv-section-label">Propuesta Económica</div>
+    <table class="${cls}">
+      <thead><tr>
+        <th>Descripción</th>
+        <th style="text-align:center">Cant.</th>
+        <th class="r">P.Unit (${sym})</th>
+        <th class="r">Total (${sym})</th>
+      </tr></thead>
+      <tbody>`;
+    inv.equipos.forEach(r => {
+      h += `<tr><td>${r.desc}</td><td style="text-align:center">${r.cantidad}</td><td class="r">${fmt(r.precioUnit)}</td><td class="r">${fmt(r.total)}</td></tr>`;
+    });
+    // Subtotal equipos solo si hay también MO o Materiales
+    if (hasMix) {
+      h += `<tr class="subtotal"><td colspan="3">Subtotal Equipos</td><td class="r">${money(eqTotal)}</td></tr>`;
+    }
+    if (inv.moTotal)  h += `<tr class="subtotal"><td colspan="3">Mano de Obra</td><td class="r">${money(inv.moTotal)}</td></tr>`;
+    if (inv.matTotal) {
+      const showDet = state.showMatDetalle && inv.matItems && inv.matItems.length > 0;
+      if (showDet) {
+        inv.matItems.forEach(r => {
+          h += `<tr><td>${r.desc}</td><td style="text-align:center">${r.cantidad}</td><td class="r">${r.precioUnit ? fmt(r.precioUnit) : '—'}</td><td class="r">${fmt(r.total)}</td></tr>`;
+        });
+        h += `<tr class="subtotal"><td colspan="3">Subtotal Materiales</td><td class="r">${money(inv.matTotal)}</td></tr>`;
+      } else {
+        h += `<tr class="subtotal"><td colspan="3">Materiales</td><td class="r">${money(inv.matTotal)}</td></tr>`;
+      }
+    }
+    h += `<tr class="grand"><td colspan="3"><strong>TOTAL GENERAL</strong></td><td class="r"><strong>${money(grand)}</strong></td></tr>
+    </tbody></table>`;
+  } else {
+    // Solo MO / Materiales sin equipos
+    h += `<table class="${cls}"><tbody>`;
+    if (inv.moTotal)  h += `<tr class="subtotal"><td colspan="2">Mano de Obra</td><td class="r">${money(inv.moTotal)}</td></tr>`;
+    if (inv.matTotal) {
+      const showDet = state.showMatDetalle && inv.matItems && inv.matItems.length > 0;
+      if (showDet) {
+        inv.matItems.forEach(r => {
+          h += `<tr><td>${r.desc}</td><td class="r">${fmt(r.total)}</td></tr>`;
+        });
+        h += `<tr class="subtotal"><td>Subtotal Materiales</td><td class="r">${money(inv.matTotal)}</td></tr>`;
+      } else {
+        h += `<tr class="subtotal"><td colspan="2">Materiales</td><td class="r">${money(inv.matTotal)}</td></tr>`;
+      }
+    }
+    h += `<tr class="grand"><td colspan="2"><strong>TOTAL GENERAL</strong></td><td class="r"><strong>${money(grand)}</strong></td></tr>
+    </tbody></table>`;
+  }
+  return { html: h, grand };
+}
+
+// tsvInput listener removed — replaced by per-section cot listeners
+
+// ═══ STEP 3 — IMAGES ══════════════════════════════════════════
+function buildImageGrid() {
+  const g = document.getElementById('imageGrid'); g.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'img-slot' + (state.images[i] ? ' has-image' : '');
+    slot.innerHTML = `
+      <button class="btn-clear" onclick="clearSlot(${i})">✕</button>
+      <div class="upload-area" onclick="document.getElementById('file${i}').click()">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-text">Subir imagen</div>
+        <input type="file" id="file${i}" accept="image/*" onchange="loadImage(event,${i})">
+      </div>
+      <img class="img-preview" src="${state.images[i]?.base64||''}" alt="">
+      <div class="slot-fields">
+        <input type="text" id="nombre${i}" placeholder="Nombre del equipo" value="${state.images[i]?.nombre||''}">
+        <input type="text" id="desc${i}" placeholder="Descripción breve" value="${state.images[i]?.descripcion||''}">
+      </div>`;
+    g.appendChild(slot);
+  }
+  for (let i = 0; i < 6; i++) {
+    const n = document.getElementById('nombre'+i), d = document.getElementById('desc'+i);
+    if (n) n.addEventListener('input', () => { if (state.images[i]) state.images[i].nombre = n.value; });
+    if (d) d.addEventListener('input', () => { if (state.images[i]) state.images[i].descripcion = d.value; });
+  }
+}
+function loadImage(e, idx) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { state.images[idx] = { base64: ev.target.result, nombre:'', descripcion:'' }; buildImageGrid(); };
+  r.readAsDataURL(f);
+}
+function clearSlot(idx) { state.images[idx] = null; buildImageGrid(); }
+buildImageGrid();
+
+// ═══ STEP 4 — DYNAMIC ALCANCE ═════════════════════════════════
+const ALCANCE_DB = {
+  default: {
+    incluye: ["Instalación y puesta en marcha de los equipos.", "Pruebas funcionales.", "Capacitación básica."],
+    noIncluye: ["Obra civil de ningún tipo.", "Trabajos en horario nocturno."]
+  },
+  "Videovigilancia / CCTV": {
+    incluye: [
+      "Provisión de cámaras, accesorios y licencias.",
+      "Provisión e instalación de grabador/NVR/VMS.",
+      "Instalación y montaje de equipos en puntos definidos.",
+      "Tendido y ordenamiento de cableado.",
+      "Configuración básica del sistema.",
+      "Visualización local y/o remota.",
+      "Pruebas de funcionamiento.",
+      "Capacitación básica al usuario.",
+      "Entrega de documentación básica."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Canalizaciones o ductos nuevos.",
+      "Red de datos no indicada en la propuesta.",
+      "Provisión de switches o core de red, salvo mención expresa.",
+      "Monitores, mobiliario o puestos de operador.",
+      "Acceso a internet o enlaces de comunicación."
+    ]
+  },
+  "Control de Acceso": {
+    incluye: [
+      "Provisión de controladores, lectores, cerraduras y accesorios.",
+      "Instalación y conexionado de equipos.",
+      "Configuración y parametrización del software.",
+      "Alta inicial de perfiles, horarios y credenciales.",
+      "Pruebas de apertura/cierre y funcionamiento.",
+      "Capacitación al administrador del sistema."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Molinetes, puertas o carpintería metálica.",
+      "Adecuaciones de estructuras de puertas existentes.",
+      "Integraciones no especificadas con RRHH, ERP o ascensores.",
+      "Provisión de cableado de red o datos no indicado."
+    ]
+  },
+  "Alarmas de Intrusión": {
+    incluye: [
+      "Provisión de panel de alarma, sensores y periféricos.",
+      "Instalación y conexionado de todos los elementos.",
+      "Programación de zonas, particiones y usuarios.",
+      "Pruebas funcionales de cada zona y dispositivo.",
+      "Capacitación básica al usuario/administrador.",
+      "Entrega de documentación del sistema."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Comunicación GSM/IP, salvo mención expresa.",
+      "Servicio de monitoreo central, salvo mención expresa.",
+      "Integraciones con otros sistemas no especificadas."
+    ]
+  },
+  "Detección de Incendio (PCI)": {
+    incluye: [
+      "Provisión de panel, detectores, módulos, sirenas y accesorios.",
+      "Instalación y conexionado de todos los elementos.",
+      "Programación del sistema por lazos/zonas.",
+      "Pruebas funcionales por sector y dispositivo.",
+      "Puesta en marcha básica del sistema.",
+      "Capacitación al personal designado por el cliente.",
+      "Entrega de documentación técnica del sistema."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Ingeniería de detalle / proyecto ejecutivo, salvo mención expresa.",
+      "Trámites normativos o aprobaciones ante terceros/aseguradoras.",
+      "Integraciones especiales con otros sistemas.",
+      "Suministro eléctrico de potencia."
+    ]
+  },
+  "Extinción de Incendio": {
+    incluye: [
+      "Provisión de materiales y componentes según diseño aprobado.",
+      "Montaje e instalación conforme al alcance contratado.",
+      "Pruebas hidráulicas o funcionales, según corresponda.",
+      "Puesta en servicio del sistema.",
+      "Entrega de documentación acordada."
+    ],
+    noIncluye: [
+      "Proyecto ejecutivo / ingeniería de detalle, salvo mención expresa.",
+      "Obras civiles de ningún tipo.",
+      "Cuarto de bombas o sala técnica, salvo mención expresa.",
+      "Adecuaciones estructurales.",
+      "Suministro de agua, energía y condiciones previas del cliente.",
+      "Trámites ante aseguradoras u organismos de control."
+    ]
+  },
+  "Seguridad Electrónica Integral": {
+    incluye: [
+      "Provisión e instalación de los subsistemas indicados en la propuesta.",
+      "Configuración e integración en plataforma unificada.",
+      "Pruebas funcionales de cada subsistema.",
+      "Puesta en marcha y validación integral.",
+      "Capacitación al personal técnico y operativo del cliente.",
+      "Entrega de documentación técnica completa."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Integraciones con sistemas de terceros no especificadas.",
+      "Suministro eléctrico de potencia.",
+      "Red de datos o infraestructura no incluida en la propuesta.",
+      "Mobiliario o puestos de control."
+    ]
+  },
+  "Smart Access": {
+    incluye: [
+      "Provisión e instalación de dispositivos Smart Access en puntos definidos.",
+      "Configuración de la plataforma y usuarios iniciales.",
+      "Integración con sistema de monitoreo según plan contratado.",
+      "Pruebas de funcionamiento y acceso.",
+      "Capacitación al administrador.",
+      "Activación del servicio y acceso a plataforma web/app."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Adecuaciones físicas de puertas o cerramientos.",
+      "Integraciones no especificadas con terceros.",
+      "Provisión de internet o conectividad en el sitio."
+    ]
+  },
+  "Monitoreo de Imágenes / SaaS": {
+    incluye: [
+      "Habilitación del servicio de monitoreo según plan contratado.",
+      "Integración de cámaras o señales definidas en la propuesta.",
+      "Parametrización básica de eventos y analíticas.",
+      "Acceso a plataforma web/app y reportes según plan.",
+      "Soporte técnico remoto.",
+      "Capacitación inicial a operadores/usuarios.",
+      "Servicio mensual según SLA contratado."
+    ],
+    noIncluye: [
+      "Provisión o mantenimiento de enlaces de internet.",
+      "Adecuación de cámaras existentes no compatibles.",
+      "Mantenimiento de infraestructura ajena al servicio.",
+      "Desarrollo a medida no incluido en el plan contratado.",
+      "Instalación física de nuevas cámaras, salvo mención expresa."
+    ]
+  },
+  "Monitoreo de Obras": {
+    incluye: [
+      "Provisión e instalación de cámaras y equipos temporales.",
+      "Configuración del sistema de monitoreo remoto.",
+      "Acceso a visualización en tiempo real y grabaciones.",
+      "Soporte técnico durante el servicio.",
+      "Rondas virtuales según frecuencia contratada.",
+      "Reportes de novedades e incidentes."
+    ],
+    noIncluye: [
+      "Obra civil o instalación eléctrica permanente.",
+      "Provisión de suministro eléctrico en el sitio.",
+      "Provisión de acceso a internet en obra.",
+      "Vigilancia física en sitio.",
+      "Mantenimiento de equipos no provistos por Protek."
+    ]
+  },
+  "BMS / Automatización": {
+    incluye: [
+      "Relevamiento técnico inicial de sistemas a integrar.",
+      "Provisión de controladores, licencias y elementos de integración.",
+      "Integración de variables definidas en la propuesta.",
+      "Programación de lógica de supervisión y/o control.",
+      "Desarrollo de pantallas básicas de operación.",
+      "Configuración de alarmas y reportes definidos.",
+      "Puesta en marcha y validación del sistema.",
+      "Capacitación básica a operadores."
+    ],
+    noIncluye: [
+      "Integración de sistemas de terceros no documentados.",
+      "Protocolos propietarios no liberados por el fabricante.",
+      "Ingeniería MEP de otros sistemas.",
+      "Sensores, actuadores u otros dispositivos fuera del alcance indicado.",
+      "Obra civil de ningún tipo."
+    ]
+  },
+  "Oficiales de Seguridad Integrados": {
+    incluye: [
+      "Provisión de oficiales certificados según turnos contratados.",
+      "Supervisión y monitoreo remoto de los puestos.",
+      "Plan de seguridad personalizado para el cliente.",
+      "Protocolo de actuación ante eventos e incidentes.",
+      "Informes de rondas, novedades y eventos.",
+      "Reunión mensual de seguimiento y ajuste del servicio."
+    ],
+    noIncluye: [
+      "Equipamiento físico del puesto, salvo acuerdo.",
+      "Provisión de vehículos o movilidad.",
+      "Intervención armada.",
+      "Cobertura de incidentes fuera del protocolo acordado."
+    ]
+  },
+  "Infraestructura de Redes": {
+    incluye: [
+      "Provisión e instalación de cableado estructurado.",
+      "Instalación y configuración de equipos de red activos.",
+      "Segmentación de red y configuración de VLANs.",
+      "Pruebas de conectividad y rendimiento.",
+      "Documentación técnica: planos, inventario y manual.",
+      "Capacitación al responsable de IT del cliente."
+    ],
+    noIncluye: [
+      "Obra civil de ningún tipo.",
+      "Canalizaciones adicionales no contempladas.",
+      "Provisión de racks o muebles técnicos, salvo mención expresa.",
+      "Configuración de software de terceros no especificada.",
+      "Suministro eléctrico de potencia."
+    ]
+  },
+  "Mantenimiento Preventivo / Correctivo": {
+    incluye: [
+      "Visitas periódicas de mantenimiento preventivo según plan.",
+      "Revisión, limpieza y ajuste de equipos del sistema.",
+      "Pruebas funcionales de los componentes principales.",
+      "Informe técnico de estado del sistema tras cada visita.",
+      "Atención correctiva remota ante eventos o fallas.",
+      "Registro de intervenciones y recomendaciones."
+    ],
+    noIncluye: [
+      "Reposición de equipos dañados por causas externas o mal uso.",
+      "Ampliaciones o modificaciones del sistema.",
+      "Obra civil de ningún tipo.",
+      "Repuestos no incluidos en el contrato.",
+      "Intervenciones de emergencia fuera del horario acordado, salvo mención expresa."
+    ]
+  },
+  "Evaluación de Riesgos / Ingeniería / Diagnóstico": {
+    incluye: [
+      "Relevamiento técnico de instalaciones existentes.",
+      "Identificación y documentación de vulnerabilidades.",
+      "Evaluación de riesgo según metodología definida.",
+      "Informe técnico con hallazgos y recomendaciones.",
+      "Propuesta de mejoras priorizadas.",
+      "Presentación de resultados al cliente."
+    ],
+    noIncluye: [
+      "Implementación de las mejoras o cambios recomendados.",
+      "Provisión de equipos o materiales.",
+      "Instalación o servicios de obra.",
+      "Aprobaciones o trámites ante terceros."
+    ]
+  }
+};
+
+function safeAttr(s) { return s.replace(/"/g,'&quot;'); }
+
+function generateAlcanceCheckboxes(sol) {
+  const db = ALCANCE_DB[sol] || ALCANCE_DB['default'];
+  document.getElementById('alcance-sol-label').textContent = sol || '';
+
+  // Build INCLUYE list — add extra items
+  const incluyeExtra = ['Ductos', 'Obras Civiles', 'Técnico SYSO', 'Protocolo de Prueba'];
+  const isVideo = sol === 'Videovigilancia / CCTV' || sol === 'Monitoreo de Imágenes / SaaS';
+  if (isVideo) incluyeExtra.push('Licencias de software');
+  const incluyeAll = [...db.incluye, ...incluyeExtra];
+
+  const siList = document.getElementById('alcance-si-list');
+  siList.innerHTML = incluyeAll.map(item =>
+    `<label class="check-opt"><input type="checkbox" class="alcance-si" value="${safeAttr(item)}" checked>${item}</label>`
+  ).join('');
+
+  // Build NO INCLUYE list — add extra items
+  const noIncluyeExtra = ['Andamios / Elevadores / Grúas', 'Mantenimiento y Operación Continua del Sistema', 'Mano de Obra Nocturna', 'Trabajo en Altura'];
+  const noIncluyeAll = [...db.noIncluye, ...noIncluyeExtra];
+
+  const noList = document.getElementById('alcance-no-list');
+  noList.innerHTML = noIncluyeAll.map(item =>
+    `<label class="check-opt"><input type="checkbox" class="alcance-no" value="${safeAttr(item)}" checked>${item}</label>`
+  ).join('');
+
+  // Clear custom item lists
+  const siCustom = document.getElementById('alcance-si-custom-list');
+  const noCustom = document.getElementById('alcance-no-custom-list');
+  if (siCustom) siCustom.innerHTML = '';
+  if (noCustom) noCustom.innerHTML = '';
+}
+
+function initStep4() {
+  const sol = document.getElementById('solucion').value;
+  if (sol !== state.alcanceSolucion) {
+    state.alcanceSolucion = sol;
+    generateAlcanceCheckboxes(sol);
+  }
+}
+
+// Plazo select → custom input toggle (kept as dead code for backward compat)
+function toggleCustomPlazo(id) {
+  const sel = document.getElementById(id+'-sel');
+  const custom = document.getElementById(id+'-custom');
+  if (sel && custom) {
+    custom.style.display = sel.value === '__custom__' ? 'block' : 'none';
+    if (sel.value === '__custom__') custom.focus();
+  }
+}
+function onPagoChange() {
+  const sel = document.getElementById('pago-select');
+  const custom = document.getElementById('pago-custom');
+  if (sel && custom) custom.style.display = sel.value === '__custom__' ? 'block' : 'none';
+}
+
+// ── PAGO ANTICIPO / CUOTAS ───────────────────────────────────
+let cuotaCounter = 0;
+
+function onPagoCalcChange() {
+  const a = parseInt(document.getElementById('pago-anticipo').value) || 0;
+  const saldoBlock = document.getElementById('pago-saldo-block');
+  const saldoPct = document.getElementById('pago-saldo-pct');
+  if (a > 0 && a < 100) {
+    if (saldoPct) saldoPct.textContent = 100 - a;
+    if (saldoBlock) saldoBlock.style.display = 'block';
+  } else {
+    if (saldoBlock) saldoBlock.style.display = 'none';
+  }
+  updatePagoStatus();
+}
+
+function onPagoSaldoTipo() {
+  const tipo = document.querySelector('input[name="pago-saldo-tipo"]:checked') && document.querySelector('input[name="pago-saldo-tipo"]:checked').value;
+  const b = document.getElementById('pago-cuotas-block');
+  if (b) b.style.display = tipo === 'cuotas' ? 'block' : 'none';
+  updatePagoStatus();
+}
+
+function addPagoCuota() {
+  const id = ++cuotaCounter;
+  const list = document.getElementById('pago-cuotas-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'cuota-row';
+  row.dataset.id = id;
+  row.innerHTML = `<input type="number" class="cuota-pct" min="0" max="100" placeholder="%" style="width:70px" oninput="updatePagoStatus()"><span>%</span><input type="text" class="cuota-desc" placeholder="Descripción (ej: contra entrega de obra)" style="flex:1"><button type="button" onclick="this.parentElement.remove();updatePagoStatus()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;padding:0 4px">✕</button>`;
+  list.appendChild(row);
+}
+
+function updatePagoStatus() {
+  const statusEl = document.getElementById('pago-cuotas-status');
+  if (!statusEl) return;
+  const tipoEl = document.querySelector('input[name="pago-saldo-tipo"]:checked');
+  const tipo = tipoEl ? tipoEl.value : 'unica';
+  if (tipo !== 'cuotas') { statusEl.textContent = ''; return; }
+  const a = parseInt(document.getElementById('pago-anticipo') && document.getElementById('pago-anticipo').value) || 0;
+  const cuotasPcts = [...document.querySelectorAll('.cuota-pct')].map(i => parseInt(i.value) || 0);
+  const total = a + cuotasPcts.reduce((s, n) => s + n, 0);
+  if (total === 100) {
+    statusEl.style.color = '#27ae60';
+    statusEl.textContent = '✓ 100% asignado';
+  } else {
+    statusEl.style.color = '#c0392b';
+    statusEl.textContent = `El total debe ser 100%. Actualmente: ${total}%`;
+  }
+}
+
+function getPagoTexto() {
+  const a = parseInt(document.getElementById('pago-anticipo') && document.getElementById('pago-anticipo').value) || 0;
+  const saldo = 100 - a;
+  if (!a) {
+    const nota = document.getElementById('pago-nota') && document.getElementById('pago-nota').value.trim();
+    return nota || '';
+  }
+  const tipoEl = document.querySelector('input[name="pago-saldo-tipo"]:checked');
+  const tipo = tipoEl ? tipoEl.value : 'unica';
+  let txt = `${a}% de anticipo con la aprobación de la propuesta.`;
+  if (saldo > 0) {
+    if (tipo === 'unica') {
+      txt += ` Saldo (${saldo}%) contra entrega.`;
+    } else {
+      const cuotas = [...document.querySelectorAll('.cuota-row')].map(r => {
+        const pct = r.querySelector('.cuota-pct') && r.querySelector('.cuota-pct').value || '';
+        const desc = r.querySelector('.cuota-desc') && r.querySelector('.cuota-desc').value.trim() || '';
+        return (pct && desc) ? `${pct}% ${desc}` : (pct ? `${pct}%` : '');
+      }).filter(Boolean);
+      if (cuotas.length) {
+        txt += ` Saldo en ${cuotas.length} cuota${cuotas.length > 1 ? 's' : ''}: ${cuotas.join(', ')}.`;
+      }
+    }
+  }
+  const nota = document.getElementById('pago-nota') && document.getElementById('pago-nota').value.trim();
+  if (nota) txt += ' ' + nota;
+  return txt;
+}
+
+// ── CUSTOM ITEMS ─────────────────────────────────────────────
+function addCustomItem(section) {
+  const list = document.getElementById(section + '-custom-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'custom-item-row';
+  row.innerHTML = `<input type="text" placeholder="Ítem personalizado..."><button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;padding:0 4px">✕</button>`;
+  list.appendChild(row);
+}
+
+// ── BENEFICIOS DINÁMICOS ──────────────────────────────────────
+function addBeneficioItem(text) {
+  const list = document.getElementById('beneficios-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'beneficio-row';
+  const safeText = (text || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  row.innerHTML = `<input type="text" value="${safeText}" placeholder="Beneficio clave..." style="flex:1"><button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;padding:0 4px">✕</button>`;
+  list.appendChild(row);
+}
+
+// ═══ SOLUTION TEXTS ═══════════════════════════════════════════
+function getTextosCarta(sol, cliente) {
+  const T = {
+    "Videovigilancia / CCTV": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Sistema de Videovigilancia. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro reconocimiento como empresa líder en seguridad electrónica en Paraguay y la región.`,
+      descripcion: `Se implementará un sistema de videovigilancia IP con analíticas inteligentes que brindará a <strong>${cliente}</strong> visibilidad total de sus instalaciones, tanto en tiempo real como mediante consulta de grabaciones. La solución disuade incidentes, acelera la respuesta y proporciona evidencia documental ante cualquier situación.`,
+      beneficios: [
+        "<strong>Visibilidad total:</strong> cobertura estratégica de todas las áreas críticas con imagen de alta definición, de día y de noche.",
+        "<strong>Disuasión activa:</strong> la presencia visible del sistema reduce significativamente la ocurrencia de incidentes de seguridad e intrusión.",
+        "<strong>Respaldo ante incidentes:</strong> grabaciones almacenadas que proveen evidencia documental ante siniestros, robos o auditorías internas.",
+        "<strong>Analíticas inteligentes:</strong> detección de intrusión perimetral, conteo de personas y alertas automáticas que optimizan la respuesta operativa."
+      ]
+    },
+    "Control de Acceso": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Sistema de Control de Acceso. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro liderazgo en soluciones de seguridad electrónica en Paraguay y la región.`,
+      descripcion: `Se implementará una solución integral de control de acceso que permitirá a <strong>${cliente}</strong> gestionar y auditar el ingreso de personas a zonas restringidas en tiempo real. La solución elimina vulnerabilidades en los accesos críticos y genera trazabilidad completa de movimientos.`,
+      beneficios: [
+        "<strong>Control total de accesos:</strong> gestión centralizada de quién entra, cuándo y a qué área, con registro histórico auditable en todo momento.",
+        "<strong>Eliminación de riesgos:</strong> reemplaza llaves físicas y sistemas obsoletos, eliminando duplicados no autorizados y pérdida de credenciales.",
+        "<strong>Integración operativa:</strong> se integra con CCTV y otros sistemas de seguridad, creando una plataforma unificada de gestión.",
+        "<strong>Escalabilidad:</strong> arquitectura que permite incorporar nuevos lectores y usuarios sin reemplazar la infraestructura central."
+      ]
+    },
+    "Alarmas de Intrusión": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Sistema de Alarmas de Intrusión. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra trayectoria en protección electrónica de instalaciones en Paraguay y la región.`,
+      descripcion: `Se implementará un sistema de detección de intrusión perimetral e interior para <strong>${cliente}</strong>, diseñado para alertar en tiempo real ante cualquier acceso no autorizado. La solución actúa como primera línea de defensa, disuadiendo intrusiones y garantizando la protección continua de las instalaciones.`,
+      beneficios: [
+        "<strong>Detección inmediata:</strong> sensores estratégicamente ubicados alertan de forma instantánea ante cualquier intrusión o violación de zona.",
+        "<strong>Gestión por particiones:</strong> el sistema permite administrar zonas y horarios de forma independiente, adaptándose a la operativa del cliente.",
+        "<strong>Integración:</strong> posibilidad de conectarse con CCTV y centrales de monitoreo para una respuesta coordinada ante eventos.",
+        "<strong>Respaldo energético:</strong> la solución opera ante cortes de energía, garantizando protección continua las 24 horas."
+      ]
+    },
+    "Detección de Incendio (PCI)": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Sistema de Detección de Incendio. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro liderazgo como empresa paraguaya con presencia en Brasil, Argentina y la región.`,
+      descripcion: `Se implementará un sistema integral de detección de incendio diseñado para brindar respuesta inmediata ante cualquier foco ígneo en las instalaciones de <strong>${cliente}</strong>. La solución garantiza la protección de personas, activos e infraestructura crítica, asegurando la continuidad operativa ante cualquier evento.`,
+      beneficios: [
+        "<strong>Detección temprana:</strong> el sistema identifica focos de incendio en su etapa inicial, reduciendo daños y facilitando la evacuación oportuna.",
+        "<strong>Cobertura integral:</strong> detectores distribuidos estratégicamente para abarcar todas las áreas críticas del establecimiento.",
+        "<strong>Fiabilidad operativa:</strong> redundancia y alimentación de respaldo garantizan funcionamiento continuo incluso ante cortes de energía.",
+        "<strong>Cumplimiento normativo:</strong> el sistema cumple con la normativa NFPA aplicable, facilitando la conformidad ante aseguradoras y organismos de control."
+      ]
+    },
+    "Extinción de Incendio": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Sistema de Extinción de Incendio. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra especialización en sistemas de protección contra incendio en Paraguay y la región.`,
+      descripcion: `Se implementará un sistema de extinción de incendio para las instalaciones de <strong>${cliente}</strong>, diseñado conforme al riesgo identificado y la normativa aplicable. La solución garantiza la supresión efectiva de incendios en áreas críticas, minimizando daños materiales y asegurando la protección de personas e infraestructura.`,
+      beneficios: [
+        "<strong>Supresión efectiva:</strong> el sistema actúa de forma automática ante un siniestro, limitando la propagación del fuego y reduciendo daños.",
+        "<strong>Diseño conforme a norma:</strong> la solución cumple con la normativa NFPA aplicable, asegurando la conformidad ante aseguradoras y autoridades.",
+        "<strong>Protección de activos:</strong> ideal para salas técnicas, depósitos y áreas de alto valor donde el fuego representa un riesgo crítico.",
+        "<strong>Integración:</strong> el sistema puede integrarse con el panel de detección de incendio para activación coordinada y alarma centralizada."
+      ]
+    },
+    "Seguridad Electrónica Integral": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Solución de Seguridad Electrónica Integral. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro liderazgo como empresa paraguaya con proyectos de referencia en la región.`,
+      descripcion: `Se implementará una solución que combina videovigilancia, control de acceso y detección de intrusión en una plataforma unificada para <strong>${cliente}</strong>. La convergencia de sistemas elimina vulnerabilidades individuales y genera una respuesta coordinada ante cualquier evento, maximizando la protección con gestión operativa eficiente.`,
+      beneficios: [
+        "<strong>Plataforma unificada:</strong> todos los sistemas de seguridad gestionados desde una sola interfaz, simplificando la operación.",
+        "<strong>Protección en capas:</strong> detección perimetral, control de accesos y videovigilancia crean múltiples barreras de seguridad complementarias.",
+        "<strong>Trazabilidad completa:</strong> registro unificado de todos los eventos de seguridad con evidencia visual asociada.",
+        "<strong>Inversión escalable:</strong> arquitectura abierta que permite incorporar nuevas tecnologías sin reemplazar la infraestructura existente."
+      ]
+    },
+    "Smart Access": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Solución Smart Access. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro liderazgo en soluciones de acceso inteligente en Paraguay y la región.`,
+      descripcion: `Smart Access permitirá a <strong>${cliente}</strong> gestionar los accesos a sus instalaciones de forma inteligente, combinando hardware de control con una plataforma digital de administración y monitoreo. La solución se despliega de forma rápida y escalable, sin necesidad de infraestructura de red compleja.`,
+      beneficios: [
+        "<strong>Despliegue rápido:</strong> la solución se instala y activa en días, sin necesidad de obras ni infraestructura compleja.",
+        "<strong>Gestión digital:</strong> alta de usuarios, perfiles y horarios desde una plataforma web o app, sin intervención técnica en sitio.",
+        "<strong>Monitoreo en tiempo real:</strong> registro de accesos, alertas y reportes accesibles desde cualquier dispositivo.",
+        "<strong>Escalabilidad:</strong> fácil incorporación de nuevos puntos de acceso sin modificar la infraestructura central."
+      ]
+    },
+    "Monitoreo de Imágenes / SaaS": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Servicio de Monitoreo de Imágenes. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra plataforma de monitoreo inteligente operada desde Paraguay para clientes en la región.`,
+      descripcion: `Se habilitará el servicio de monitoreo de imágenes para <strong>${cliente}</strong>, con acceso a visualización en tiempo real, grabaciones y analíticas desde nuestra plataforma SaaS. El servicio se activa sobre la infraestructura de cámaras existente o nueva, sin necesidad de inversión en servidores propios.`,
+      beneficios: [
+        "<strong>Sin inversión en servidores:</strong> toda la infraestructura tecnológica es responsabilidad de Protek, con acceso del cliente vía web/app.",
+        "<strong>Operación 24/7:</strong> el servicio opera de forma continua con monitoreo activo según el plan contratado.",
+        "<strong>Analíticas incluidas:</strong> detección de eventos, alertas automáticas y reportes periódicos disponibles en la plataforma.",
+        "<strong>Escalabilidad inmediata:</strong> alta de nuevas cámaras o sitios sin cambios de infraestructura ni contratos nuevos."
+      ]
+    },
+    "Monitoreo de Obras": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Monitoreo de Obras. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra solución especializada para el control y vigilancia de obras en construcción en Paraguay y la región.`,
+      descripcion: `Se proveerá el servicio de monitoreo remoto para la obra de <strong>${cliente}</strong>, con equipos temporales de videovigilancia, acceso en tiempo real y rondas virtuales periódicas. La solución protege activos, materiales y accesos durante toda la etapa constructiva.`,
+      beneficios: [
+        "<strong>Implementación rápida:</strong> los equipos se instalan en días sin obras civiles, adaptándose a las condiciones del sitio.",
+        "<strong>Cobertura continua:</strong> vigilancia remota las 24 horas con grabación y acceso online para el director de obra.",
+        "<strong>Reducción de pérdidas:</strong> presencia disuasiva que reduce robos de materiales y herramientas en obra.",
+        "<strong>Reportes de novedades:</strong> informes periódicos de actividad, accesos e incidentes."
+      ]
+    },
+    "BMS / Automatización": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Solución BMS y Automatización. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra competencia en integración de sistemas para edificios e instalaciones industriales.`,
+      descripcion: `Se implementará una solución de supervisión y automatización de variables críticas para las instalaciones de <strong>${cliente}</strong>, integrando sistemas mecánicos, eléctricos y de seguridad en una plataforma unificada. La solución mejora la eficiencia operativa, reduce consumos y centraliza el control de las instalaciones.`,
+      beneficios: [
+        "<strong>Visibilidad operativa:</strong> monitoreo en tiempo real de variables críticas del edificio desde una única plataforma.",
+        "<strong>Eficiencia energética:</strong> automatización de climatización, iluminación y equipos reduce consumos y optimiza recursos.",
+        "<strong>Integración de sistemas:</strong> CCTV, accesos, incendio y variables MEP unificados en una sola vista operativa.",
+        "<strong>Mantenimiento predictivo:</strong> alertas tempranas ante desviaciones permiten anticipar fallas antes de que afecten la operación."
+      ]
+    },
+    "Oficiales de Seguridad Integrados": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Servicio de Oficiales de Seguridad Integrados. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra capacidad de integrar recursos humanos con tecnología de monitoreo avanzada.`,
+      descripcion: `Se proveerá un servicio integral de oficiales de seguridad con respaldo de monitoreo remoto permanente para <strong>${cliente}</strong>, combinando la presencia física en puntos críticos con la supervisión tecnológica en tiempo real.`,
+      beneficios: [
+        "<strong>Presencia disuasiva:</strong> oficiales capacitados y certificados en puntos estratégicos con respuesta inmediata ante incidentes.",
+        "<strong>Supervisión permanente:</strong> monitoreo remoto que complementa la presencia física garantizando cobertura total.",
+        "<strong>Respuesta coordinada:</strong> protocolo definido entre oficiales en sitio y central de monitoreo para reducir tiempos de reacción.",
+        "<strong>Informes y trazabilidad:</strong> reportes de novedades, rondas y eventos en tiempo real accesibles para la gerencia."
+      ]
+    },
+    "Infraestructura de Redes": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta Técnica/Comercial de Infraestructura de Redes. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestra trayectoria en proyectos de conectividad corporativa en Paraguay y la región.`,
+      descripcion: `Se implementará una infraestructura de red robusta y escalable que brindará a <strong>${cliente}</strong> conectividad confiable, segura y de alto rendimiento en todas sus instalaciones.`,
+      beneficios: [
+        "<strong>Conectividad confiable:</strong> diseño con redundancia para garantizar disponibilidad continua sin puntos únicos de falla.",
+        "<strong>Alto rendimiento:</strong> cableado y equipamiento para soportar las demandas actuales y futuras de ancho de banda.",
+        "<strong>Seguridad de la red:</strong> segmentación y VLANs que protegen datos críticos y limitan el impacto ante incidentes.",
+        "<strong>Documentación completa:</strong> planos de red, inventario de activos y manual de operación para gestión interna del cliente."
+      ]
+    },
+    "Mantenimiento Preventivo / Correctivo": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Servicio de Mantenimiento. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro equipo técnico especializado en sistemas de seguridad electrónica y protección contra incendio.`,
+      descripcion: `Se proveerá un servicio de mantenimiento preventivo y correctivo para los sistemas instalados en <strong>${cliente}</strong>, garantizando el óptimo funcionamiento de los equipos, extendiendo su vida útil y asegurando la disponibilidad operativa de todas las instalaciones.`,
+      beneficios: [
+        "<strong>Continuidad operativa:</strong> mantenimiento periódico que previene fallas y asegura el funcionamiento de los sistemas en todo momento.",
+        "<strong>Vida útil extendida:</strong> revisiones y ajustes regulares prolongan el rendimiento de los equipos y reducen costos de reposición.",
+        "<strong>Respuesta rápida:</strong> atención correctiva prioritaria ante fallas, minimizando el tiempo sin cobertura.",
+        "<strong>Registro técnico:</strong> informe detallado tras cada visita con estado del sistema, hallazgos y recomendaciones."
+      ]
+    },
+    "Evaluación de Riesgos / Ingeniería / Diagnóstico": {
+      saludo: `Nos dirigimos a Ud. para agradecer la oportunidad de presentar nuestra Propuesta de Evaluación de Riesgos e Ingeniería de Seguridad. Queremos extenderle el respaldo de nuestra experiencia de 35 años en el mercado y nuestro equipo de consultores especializados en seguridad electrónica y protección de instalaciones.`,
+      descripcion: `Se realizará un diagnóstico técnico integral de las instalaciones de <strong>${cliente}</strong>, identificando vulnerabilidades, evaluando el nivel de riesgo y elaborando un plan de mejoras priorizado. El informe entregado constituirá la base técnica para las inversiones en seguridad de la organización.`,
+      beneficios: [
+        "<strong>Diagnóstico objetivo:</strong> evaluación técnica independiente que identifica vulnerabilidades reales y las prioriza por nivel de riesgo.",
+        "<strong>Plan de acción concreto:</strong> recomendaciones técnicas y comerciales ordenadas por impacto, con estimación de inversión.",
+        "<strong>Base para decisiones:</strong> el informe provee sustento técnico para justificar inversiones ante la dirección.",
+        "<strong>Perspectiva integral:</strong> análisis que considera seguridad física, electrónica, protección contra incendio y procedimientos operativos."
+      ]
+    }
+  };
+  return T[sol] || T["Seguridad Electrónica Integral"];
+}
+
+// ═══ LOGO SVG ═════════════════════════════════════════════════
+const LOGO_WHITE = `<svg height="40" viewBox="0 0 115.2 38.9" xmlns="http://www.w3.org/2000/svg">
+  <path fill="white" d="M47.6,16.5c0,1,0.5,1.2,2.1,1.3v0.6h-6v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2H49c3.3,0,4.8,1.6,4.8,3.6c0,2.3-1.6,3.7-4.8,3.7h-1.3V16.5z M47.6,12.8h0.7c1.9,0,2.8-1.1,2.8-2.9c0-1.7-0.9-3-2.8-3h-0.7V12.8z"/>
+  <path fill="white" d="M58.8,16.6c0,1,0.2,1.1,1.4,1.2v0.6h-5.3v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h5.5c2.9,0,4.5,1.3,4.5,3.4c0,1.9-1.5,2.9-2.8,3.2l2.6,3.5c0.8,1.1,1.2,1.4,2.1,1.4v0.6h-3.3c-0.5-0.4-0.9-0.9-1.5-1.7l-2.4-3.5h-0.9V16.6z M58.8,6.9v5.5h0.8c1.8,0,2.7-1,2.7-2.8c0-1.6-0.9-2.7-2.8-2.7H58.8z"/>
+  <path fill="white" d="M67.1,12.5c0-4,2.5-6.5,5.8-6.5c3.7,0,5.6,2.8,5.6,6c0,4-2.5,6.5-5.8,6.5C69.1,18.5,67.1,15.7,67.1,12.5 M75.9,12.4c0-2.9-0.9-5.6-3.1-5.6c-2,0-2.9,2.6-2.9,5.4c0,2.9,0.9,5.6,3.1,5.6C75,17.8,75.9,15.2,75.9,12.4"/>
+  <path fill="white" d="M90.6,6.2l0.3,4h-0.6c-1.1-2.6-1.5-3.4-2.9-3.4h-0.9v9.8c0,1,0.4,1,1.6,1.1v0.6h-5.6v-0.6c1.2-0.1,1.6-0.2,1.6-1.1V6.9h-0.9c-1.3,0-1.7,0.8-2.9,3.4h-0.6l0.3-4H90.6z"/>
+  <path fill="white" d="M91.9,17.8c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h9.5l0.1,3.1H101c-0.8-1.9-1.4-2.4-2.7-2.4h-2.4v4.8H98c0.8,0,1-0.5,1.2-1.6h0.6v3.9h-0.6c-0.2-1.1-0.4-1.6-1.2-1.6h-2.2v4c0,0.9,0.5,1.2,1.5,1.2h1.1c1.4,0,1.9-0.7,3-2.8h0.6l-0.5,3.5h-9.7V17.8z"/>
+  <path fill="white" d="M107.2,16.6c0,1,0.2,1.1,1.4,1.2v0.6h-5.3v-0.6c1.2-0.1,1.4-0.2,1.4-1.2V8c0-1-0.2-1.1-1.4-1.2V6.2h5.3v0.6c-1.2,0.1-1.4,0.2-1.4,1.2V16.6z M113.3,16.5c0.7,0.9,1,1.2,1.9,1.2v0.6h-3.3c-0.5-0.4-1-1.1-1.5-1.7l-3-4.2l4.2-4.4c0.2-0.2,0.4-0.5,0.4-0.7c0-0.3-0.3-0.4-1.3-0.5V6.2h3.9v0.6c-0.7,0-1,0.2-1.6,0.8l-3.5,3.7L113.3,16.5z"/>
+  <path fill="white" d="M48.9,34.2c-1,0-2-0.2-2.8-0.7c-0.9-0.5-1.5-1.2-2.1-2.1c-0.5-0.9-0.8-2.1-0.8-3.5c0-1,0.1-1.9,0.5-2.7c0.3-0.8,0.7-1.5,1.3-2c0.5-0.6,1.1-1,1.8-1.3c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.2,2.1,0.5c0.6,0.3,1.1,0.7,1.5,1.1l-1.4,1.7c-0.3-0.3-0.6-0.5-1-0.7c-0.4-0.2-0.8-0.3-1.2-0.3c-0.6,0-1.1,0.2-1.6,0.5c-0.5,0.3-0.9,0.8-1.1,1.4c-0.3,0.6-0.4,1.3-0.4,2.2c0,0.9,0.1,1.6,0.4,2.2c0.3,0.6,0.6,1.1,1.1,1.4c0.5,0.3,1,0.5,1.6,0.5c0.5,0,1-0.1,1.4-0.3c0.4-0.2,0.8-0.5,1.1-0.8l1.4,1.6c-0.5,0.6-1.1,1-1.8,1.3C50.4,34.1,49.7,34.2,48.9,34.2"/>
+  <path fill="white" d="M59.4,34.2c-1.1,0-2.1-0.3-2.9-0.8c-0.8-0.5-1.5-1.3-1.9-2.2c-0.5-1-0.7-2.1-0.7-3.4c0-1.3,0.2-2.5,0.7-3.4c0.5-0.9,1.1-1.7,1.9-2.2c0.8-0.5,1.8-0.8,2.9-0.8s2.1,0.3,2.9,0.8c0.8,0.5,1.5,1.2,1.9,2.2c0.5,0.9,0.7,2.1,0.7,3.4c0,1.3-0.2,2.5-0.7,3.4c-0.5,1-1.1,1.7-1.9,2.2C61.4,34,60.5,34.2,59.4,34.2 M59.4,32c0.6,0,1.1-0.2,1.5-0.5c0.4-0.3,0.8-0.8,1-1.4c0.2-0.6,0.4-1.4,0.4-2.2s-0.1-1.6-0.4-2.2c-0.2-0.6-0.6-1.1-1-1.4c-0.4-0.3-0.9-0.5-1.5-0.5c-0.6,0-1.1,0.2-1.5,0.5c-0.4,0.3-0.8,0.8-1,1.4c-0.2,0.6-0.3,1.3-0.3,2.2s0.1,1.6,0.3,2.2c0.2,0.6,0.6,1.1,1,1.4C58.3,31.8,58.8,32,59.4,32"/>
+  <path fill="white" d="M67,34V21.7h4.3c0.9,0,1.7,0.1,2.4,0.3c0.7,0.2,1.3,0.6,1.7,1.2c0.4,0.5,0.6,1.3,0.6,2.2c0,0.9-0.2,1.7-0.6,2.3c-0.4,0.6-1,1-1.7,1.3c-0.7,0.3-1.5,0.4-2.4,0.4h-1.8V34H67z M69.6,27.4h1.5c0.8,0,1.4-0.2,1.8-0.5c0.4-0.3,0.6-0.8,0.6-1.4s-0.2-1.1-0.6-1.3c-0.4-0.3-1-0.4-1.8-0.4h-1.5V27.4z M73.7,34l-2.8-5.2l1.8-1.6l3.9,6.9H73.7z"/>
+  <path fill="white" d="M78.2,34V21.7h4.1c0.9,0,1.7,0.1,2.4,0.4c0.7,0.2,1.3,0.6,1.7,1.2c0.4,0.6,0.6,1.3,0.6,2.3c0,0.9-0.2,1.7-0.6,2.3c-0.4,0.6-1,1.1-1.7,1.3c-0.7,0.3-1.5,0.4-2.4,0.4h-1.6V34H78.2z M80.7,27.7h1.4c0.8,0,1.4-0.2,1.8-0.5c0.4-0.3,0.6-0.9,0.6-1.5c0-0.7-0.2-1.2-0.6-1.4c-0.4-0.3-1-0.4-1.9-0.4h-1.4V27.7z"/>
+  <path fill="white" d="M33.4,0H3.3C1.5,0,0,1.5,0,3.3v32.2c0,1.8,1.5,3.3,3.3,3.3h30.1c1.8,0,3.3-1.5,3.3-3.3V3.3C36.8,1.5,35.3,0,33.4,0 M29.7,16.8l-6.9,4.1l6.3-1.6c-0.2,0.5-0.5,1-0.8,1.5c-1.7,2.6-4.6,4.3-8,4.3h-3.9V34H9V6h1.7h9.5c0,0,0.1,0,0.1,0l-7.5,5.1l10.9-4.5c0.3,0.1,0.6,0.3,0.9,0.4l-9.1,6.6L27.2,9c0.2,0.2,0.5,0.5,0.6,0.8l-10,6.3L29,11.8c0.2,0.4,0.3,0.8,0.4,1.2l-9.2,5.4l9.5-2.9C29.8,16,29.8,16.4,29.7,16.8"/>
+</svg>`;
+
+// ═══ BUILD CARTA ══════════════════════════════════════════════
+function buildCarta() {
+  for (let i = 0; i < 6; i++) {
+    if (state.images[i]) {
+      const n = document.getElementById('nombre'+i), d = document.getElementById('desc'+i);
+      if (n) state.images[i].nombre = n.value;
+      if (d) state.images[i].descripcion = d.value;
+    }
+  }
+
+  const empresa        = document.getElementById('empresa').value.trim();
+  const rucCliente     = document.getElementById('ruc-cliente').value.trim();
+  const destinatario   = document.getElementById('destinatario').value.trim();
+  const gcNombre       = document.getElementById('gc').value;
+  const gcInfo         = GC_DATA[gcNombre] || {};
+  const gcCargo        = gcInfo.cargo || 'Gerente de Cuentas';
+  const gcEmail        = document.getElementById('gc-email').value.trim();
+  const solucion       = document.getElementById('solucion').value;
+  const tipoProp       = document.getElementById('tipo-propuesta').options[document.getElementById('tipo-propuesta').selectedIndex].text;
+  const empresaEmisora = (document.getElementById('empresa-emisora') && document.getElementById('empresa-emisora').value) || 'Protek Corp';
+
+  // Read editable texts from wizard UI
+  const textoDescEl    = document.getElementById('texto-descripcion');
+  const textosFallback = getTextosCarta(solucion, empresa);
+  const textoDescFinal = (textoDescEl && textoDescEl.value.trim()) ? textoDescEl.value.trim() : textosFallback.descripcion;
+  const textos = { ...textosFallback, descripcion: textoDescFinal };
+
+  // Forma de pago
+  const pagoTxt = getPagoTexto();
+  const iva     = document.getElementById('pago-iva').value;
+
+  // Plazos
+  const peNum  = document.getElementById('pe-num') && document.getElementById('pe-num').value;
+  const peUnit = (document.getElementById('pe-unit') && document.getElementById('pe-unit').value) || 'meses';
+  const plazoEq = peNum ? `${peNum} ${peUnit}` : '';
+  const piNum  = document.getElementById('pi-num') && document.getElementById('pi-num').value;
+  const piUnit = (document.getElementById('pi-unit') && document.getElementById('pi-unit').value) || 'meses';
+  const plazoIn = piNum ? `${piNum} ${piUnit}` : '';
+
+  // Garantías
+  const garEqNum  = document.getElementById('gar-eq-num') && document.getElementById('gar-eq-num').value;
+  const garEqUnit = (document.getElementById('gar-eq-unit') && document.getElementById('gar-eq-unit').value) || 'meses';
+  const garEq     = garEqNum ? `${garEqNum} ${garEqUnit}` : '';
+  const garMO     = (document.querySelector('input[name="gar-mo-rad"]:checked') && document.querySelector('input[name="gar-mo-rad"]:checked').value) || '';
+  const condPlazo = [...document.querySelectorAll('.cond-plazo:checked')].map(c => c.value);
+
+  // Alcance
+  const siChecked  = [...document.querySelectorAll('.alcance-si:checked')].map(c => c.value);
+  const siCustom   = [...document.querySelectorAll('#alcance-si-custom-list .custom-item-row input')].map(i=>i.value.trim()).filter(Boolean);
+  const noChecked  = [...document.querySelectorAll('.alcance-no:checked')].map(c => c.value);
+  const noCustom   = [...document.querySelectorAll('#alcance-no-custom-list .custom-item-row input')].map(i=>i.value.trim()).filter(Boolean);
+  const alcanceSi  = [...siChecked, ...siCustom];
+  const alcanceNo  = [...noChecked, ...noCustom];
+
+  // Condiciones previas
+  const prevChecked = [...document.querySelectorAll('.cond-prev:checked')].map(c => c.value);
+  const prevCustom  = [...document.querySelectorAll('#cond-prev-custom-list .custom-item-row input')].map(i=>i.value.trim()).filter(Boolean);
+  const condPrev    = [...prevChecked, ...prevCustom];
+
+  const beneficio = document.getElementById('beneficio-adicional').value.trim();
+  const confid    = document.getElementById('incluir-confid').checked;
+  const imgItems  = state.images.filter(Boolean);
+
+  const today   = new Date();
+  const dateStr = today.toLocaleDateString('es-PY', { day:'2-digit', month:'long', year:'numeric' });
+
+  let html = '';
+
+  // Header
+  const clientLine = empresa + (rucCliente ? ` — RUC ${rucCliente}` : '');
+  html += `<div class="carta-header">
+    <div>${LOGO_WHITE}</div>
+    <div class="carta-header-text">
+      <div class="prop-title">${empresaEmisora.toUpperCase()} — ${tipoProp.toUpperCase()} — ${solucion.toUpperCase()}</div>
+      <div class="client-name">${clientLine}</div>
+    </div>
+  </div>`;
+
+  html += `<div class="carta-body">`;
+  html += `<p style="text-align:right;font-size:12px;color:#888;margin-bottom:14px;">${dateStr}</p>`;
+  if (destinatario) html += `<p><strong>${destinatario}</strong></p>`;
+  html += `<p><u>Presente</u></p><p>De nuestra consideración:</p><p>${textos.saludo}</p>`;
+
+  // Solución
+  html += `<div class="carta-section">
+    <div class="carta-pill">Solución propuesta</div>
+    <div class="carta-box"><p>${textos.descripcion}</p></div>
+  </div>`;
+
+  // Beneficios
+  const beneficiosItems = [...document.querySelectorAll('#beneficios-list .beneficio-row input')].map(i => i.value.trim()).filter(Boolean);
+  if (!beneficiosItems.length && textos.beneficios) textos.beneficios.forEach(b => beneficiosItems.push(b));
+  html += `<div class="carta-section"><div class="carta-pill">Beneficios clave</div><div class="carta-box"><ul>`;
+  beneficiosItems.forEach(b => { html += `<li>${b}</li>`; });
+  html += `</ul></div></div>`;
+
+  // Inversión — multi-section
+  const sectionsWithData = state.cotSections.filter(s => s.inv && (s.inv.equipos.length > 0 || s.inv.moTotal > 0 || s.inv.matTotal > 0));
+  if (sectionsWithData.length > 0) {
+    sectionsWithData.forEach((sec) => {
+      const { html: tbl } = buildInvTable(sec.inv, 'inv-table', sec.moneda);
+      const solLabel = sec.solucion || 'Propuesta Económica';
+      const monLabel = sec.moneda === 'PYG' ? 'Gs. (Guaraníes)' : 'USD';
+      html += `<div class="carta-section inv-section-pagebreak">
+        <div class="carta-pill">${solLabel}</div>
+        ${tbl}
+        <div class="carta-note">* Valores en ${monLabel}, IVA incluido.</div>
+      </div>`;
+    });
+    if (sectionsWithData.length >= 2) {
+      const cartaCurrencies = [...new Set(sectionsWithData.map(s => s.moneda || 'USD'))];
+      const cartaMixed = cartaCurrencies.length > 1;
+      const cartaTotByCur = {};
+      let summaryRows = '';
+      sectionsWithData.forEach(sec => {
+        const mon = sec.moneda || 'USD';
+        const { money } = getCurrencyInfo(mon);
+        const t = sec.inv.equipos.reduce((a,r) => a+r.total,0) + sec.inv.moTotal + sec.inv.matTotal;
+        cartaTotByCur[mon] = (cartaTotByCur[mon] || 0) + t;
+        summaryRows += `<tr><td>${sec.solucion || 'Sin nombre'}</td><td class="r">${money(t)}</td></tr>`;
+      });
+      if (cartaMixed) {
+        Object.entries(cartaTotByCur).forEach(([mon, total]) => {
+          const { money } = getCurrencyInfo(mon);
+          summaryRows += `<tr class="grand"><td><strong>Total ${mon}</strong></td><td class="r"><strong>${money(total)}</strong></td></tr>`;
+        });
+      } else {
+        const mon = cartaCurrencies[0];
+        const { money } = getCurrencyInfo(mon);
+        summaryRows += `<tr class="grand"><td><strong>Total General</strong></td><td class="r"><strong>${money(cartaTotByCur[mon])}</strong></td></tr>`;
+      }
+      html += `<div class="carta-section">
+        <div class="carta-pill">Resumen total de inversión</div>
+        <table class="inv-table"><thead><tr><th>Solución</th><th class="r">Subtotal</th></tr></thead><tbody>${summaryRows}</tbody></table>
+      </div>`;
+    }
+  }
+
+  // Equipos destacados — página propia después de la propuesta económica
+  if (imgItems.length) {
+    html += `<div class="carta-section equip-section-pagebreak">
+      <div class="carta-pill">Equipos destacados</div>
+      <div class="carta-equip-grid">`;
+    imgItems.forEach(img => {
+      html += `<div class="carta-equip-item">
+        <img class="carta-equip-img" src="${img.base64}" alt="">
+        <div class="carta-equip-name">${img.nombre||''}</div>
+        <div class="carta-equip-desc">${img.descripcion||''}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Pre-calcular plazos
+  const plazosLines = [];
+  if (plazoEq) plazosLines.push(`<strong>Importación de equipos:</strong> ${plazoEq}`);
+  if (plazoIn) plazosLines.push(`<strong>Ejecución / instalación:</strong> ${plazoIn}`);
+  if (garEq)   plazosLines.push(`<strong>Garantía equipos y materiales:</strong> ${garEq}`);
+  if (garMO)   plazosLines.push(`<strong>Garantía mano de obra:</strong> ${garMO}`);
+  if (condPlazo.length) plazosLines.push(`<em style="font-size:13px;color:#888">${condPlazo.join(' / ')}</em>`);
+
+  // ── FILA 1: Alcance incluido | No incluido (misma altura) ─────
+  if (alcanceSi.length || alcanceNo.length) {
+    html += `<div class="carta-grid2 alcance-section-pagebreak alcance-stretch">`;
+    if (alcanceSi.length) {
+      html += `<div><div class="carta-pill">Alcance incluido</div>
+        <div class="carta-box"><ul class="alcance-list si">`;
+      alcanceSi.forEach(a => { html += `<li><span>${a}</span></li>`; });
+      html += `</ul></div></div>`;
+    }
+    if (alcanceNo.length) {
+      html += `<div><div class="carta-pill">No incluido</div>
+        <div class="carta-box"><ul class="alcance-list no">`;
+      alcanceNo.forEach(a => { html += `<li><span>${a}</span></li>`; });
+      html += `</ul></div></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // ── FILA 2: Condiciones previas (izq) | Forma de pago (der) ───
+  if (condPrev.length || pagoTxt) {
+    html += `<div class="carta-grid2 alcance-stretch" style="margin-top:14px">`;
+    if (condPrev.length) {
+      html += `<div><div class="carta-pill">Condiciones previas del cliente</div>
+        <div class="carta-box"><ul class="alcance-list prev">`;
+      condPrev.forEach(a => { html += `<li><span>${a}</span></li>`; });
+      html += `</ul></div></div>`;
+    }
+    if (pagoTxt) {
+      html += `<div><div class="carta-pill">Forma de pago</div>
+        <div class="carta-box">
+          <p style="margin-bottom:8px">${pagoTxt}</p>
+          <p style="font-size:13px;color:#555;margin-bottom:0"><strong>Moneda:</strong> USD &nbsp;·&nbsp; <strong>IVA:</strong> ${iva}</p>
+        </div></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // ── FILA 3: Plazos y garantías (ancho completo) ────────────────
+  if (plazosLines.length) {
+    html += `<div class="carta-section" style="margin-top:14px">
+      <div class="carta-pill">Plazos y garantías</div>
+      <div class="carta-box plazos-box">
+        <ul class="plazos-list">`;
+    plazosLines.forEach(l => { html += `<li>${l}</li>`; });
+    html += `</ul></div></div>`;
+  }
+
+  // Beneficio adicional
+  if (beneficio) {
+    html += `<div class="carta-section">
+      <div class="carta-pill">Beneficio adicional sin costo</div>
+      <div class="carta-box"><p>${beneficio}</p></div>
+    </div>`;
+  }
+
+  // ── CASOS DE ÉXITO ────────────────────────────────────────────
+  const casosIds = state.casosSeleccionados || [];
+  if (casosIds.length) {
+    html += `<div class="carta-section" style="page-break-before:always">
+      <div class="carta-pill">Casos de Éxito</div>`;
+    casosIds.forEach(id => {
+      const c = CASOS_DB[id];
+      html += `<div class="caso-card">
+        <div class="caso-card-header">
+          <span class="caso-card-nombre">${c.cliente}</span>
+          <span class="caso-card-badge">${c.tipoCaso}</span>
+        </div>
+        <div class="caso-card-segmento">${c.segmento}</div>
+        <div class="caso-card-soluciones">Soluciones: ${c.soluciones}</div>
+        <div class="caso-card-resumen">${c.resumen}</div>
+        <ul class="caso-resultados">
+          ${c.resultados.map(r => `<li><span>${r}</span></li>`).join('')}
+        </ul>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // ── CERTIFICACIONES Y HABILITACIONES ──────────────────────────
+  html += `<div class="carta-section" style="page-break-before:always">
+    <div class="carta-pill">Certificaciones y Reconocimientos</div>
+    <div class="cert-grid">
+      <div class="cert-item">
+        <div class="cert-icon iso">ISO<br>9001</div>
+        <div class="cert-item-text">
+          <div class="cert-title">Normas de Calidad</div>
+          <div class="cert-sub">ISO 9001:2015 — Sistema de Gestión de Calidad certificado internacionalmente.</div>
+        </div>
+      </div>
+      <div class="cert-item">
+        <div class="cert-icon policia">PNP<br>Hab.</div>
+        <div class="cert-item-text">
+          <div class="cert-title">Empresa habilitada por la Policía Nacional</div>
+          <div class="cert-sub">Dirección de Delitos Económicos. Ley Nro. 5.424/2015.</div>
+        </div>
+      </div>
+      <div class="cert-item">
+        <div class="cert-icon gptw">GPTW</div>
+        <div class="cert-item-text">
+          <div class="cert-title">Great Place To Work</div>
+          <div class="cert-sub">Reconocimiento como uno de los mejores lugares para trabajar en Paraguay.</div>
+        </div>
+      </div>
+      <div class="cert-item">
+        <div class="cert-icon tecnico">TÉC<br>CERT</div>
+        <div class="cert-item-text">
+          <div class="cert-title">Plantel Técnico Certificado</div>
+          <div class="cert-sub">Contamos con un plantel técnico certificado en las marcas referentes del mercado.</div>
+        </div>
+      </div>
+    </div>
+    <div class="cert-legal-box">
+      <div class="cert-legal-title">Habilitación de la Policía Nacional</div>
+      <p class="cert-legal-text">En cumplimiento a la <strong>Ley N° 5424/2015</strong>, <em>"QUE REGULA LA PRESTACIÓN DE SERVICIOS DE VIGILANCIA Y SEGURIDAD DE LAS PERSONAS Y BIENES PATRIMONIALES EN EL ÁMBITO DE SEGURIDAD PRIVADA"</em>, <strong>Protek S.R.L.</strong> está habilitada mediante DICTAMEN NRO.: 60/2018, por el ente regulador que es el DEPARTAMENTO ESPECIALIZADO EN EL CONTROL Y FISCALIZACIÓN DE EMPRESAS DE SEGURIDAD PRIVADA Y AFINES, dependiente de la Dirección de Delitos Económicos de la POLICÍA NACIONAL.</p>
+      <p class="cert-legal-text" style="margin-bottom:0">Cabe señalar que dicha Ley está vigente y establece que las implementaciones de <strong>Sistemas de Seguridad Electrónicos</strong> podrán realizar solamente empresas o instaladores habilitados (Art. 43).</p>
+    </div>
+  </div>`;
+
+  // ── FIRMA — siempre al final ───────────────────────────────────
+  html += `<div class="firma-block">
+    <hr class="carta-hr">
+    <div class="carta-firma">
+      <div class="firma-nombre">${gcNombre||''}</div>
+      <div class="firma-cargo">${gcCargo}</div>
+      <div class="firma-empresa">Protek S.R.L.</div>
+      ${gcEmail ? `<div style="font-size:13px;color:#666;margin-top:3px">${gcEmail}</div>` : ''}
+    </div>
+  </div>`;
+
+  if (confid) {
+    html += `<div class="carta-confid">Documento confidencial. Destinado exclusivamente a ${empresa}. Prohibida su reproducción o distribución sin autorización de Protek S.R.L.</div>`;
+  }
+
+  html += `</div>`; // /carta-body
+
+  document.getElementById('cartaPreview').innerHTML = html;
+}
+
+// ═══ PDF EXPORT ═══════════════════════════════════════════════
+function exportPDF() {
+  const body = document.getElementById('cartaPreview').innerHTML;
+  const win  = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><title>Propuesta — Protek Corp</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',Arial,sans-serif;font-size:15px;color:#111;line-height:1.75}
+@page{margin:1.8cm 1.5cm}
+.carta-header{background:#20409A;padding:18px 26px;display:flex;align-items:center;gap:18px;border-bottom:4px solid #1EB0D5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-header-text{color:#fff}
+.carta-header-text .prop-title{font-size:17px;font-weight:700;letter-spacing:.2px;font-family:'Assistant',Arial,sans-serif;}
+.carta-header-text .client-name{font-size:14px;opacity:.88;margin-top:4px}
+.carta-body{padding:20px 0}
+.carta-body p{margin-bottom:12px}
+.carta-section{margin-bottom:20px}
+.carta-pill{display:inline-block;background:#20409A;color:#fff;padding:6px 15px;border-radius:5px;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:.3px;font-family:'Assistant',Arial,sans-serif;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-box{border:1px solid #dde3f0;border-radius:7px;padding:13px 16px;margin-bottom:5px;background:#fafcff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-box ul{padding-left:20px}.carta-box ul li{margin-bottom:6px}
+.carta-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.alcance-stretch{align-items:stretch;margin-bottom:0}
+.alcance-stretch > div{display:flex;flex-direction:column}
+.alcance-stretch > div .carta-box{flex:1}
+.plazos-box{columns:2;column-gap:28px}
+.plazos-list{list-style:none;padding:0;font-size:14px}.plazos-list li{margin-bottom:7px;line-height:1.5;break-inside:avoid}
+.inv-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:5px}
+.inv-section-label{font-size:12px;font-weight:700;color:#20409A;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px}
+.inv-table th{background:#eef1fb;color:#20409A;padding:8px 10px;border:1px solid #dde3f0;text-align:left;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.inv-table th.r,.inv-table td.r{text-align:right;white-space:nowrap}
+.inv-table td{padding:7px 10px;border:1px solid #e8e8e8;vertical-align:middle}
+.inv-section-pagebreak{page-break-before:always}
+.alcance-section-pagebreak{page-break-before:always}
+.equip-section-pagebreak{page-break-before:always;page-break-inside:avoid}
+.inv-table tr{page-break-inside:avoid}
+.inv-table .grand{page-break-before:avoid}
+.inv-table .subtotal{page-break-before:avoid}
+.inv-table .subtotal td{background:#f0f4ff;font-size:13px;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.inv-table .grand td{background:#20409A;color:#fff;font-weight:700;font-size:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-note{font-size:13px;color:#888;margin-top:6px;margin-bottom:14px}
+.carta-equip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:6px}
+.carta-equip-item{border:none;border-radius:8px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.10);background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-equip-img{width:100%;height:190px;object-fit:contain;background:#fff;display:block;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-equip-name{font-size:14px;font-weight:700;padding:8px 12px 3px;color:#20409A}
+.carta-equip-desc{font-size:13px;color:#555;padding:0 12px 10px;line-height:1.45}
+.alcance-list{list-style:none;padding:0;font-size:14px}
+.alcance-list li{margin-bottom:6px;display:flex;gap:7px;align-items:flex-start;line-height:1.45}
+.alcance-list.si li::before{content:"✓";color:#20409A;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.alcance-list.no li::before{content:"✗";color:#c0392b;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.alcance-list.prev li::before{content:"◆";color:#e67e22;font-weight:700;flex-shrink:0;font-size:11px;margin-top:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.carta-box{page-break-inside:avoid}
+.caso-card{border-left:4px solid #1EB0D5;border-radius:0 7px 7px 0;background:#fafcff;padding:13px 16px;margin-bottom:14px;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.caso-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.caso-card-nombre{font-size:15px;font-weight:700;color:#20409A;font-family:'Assistant',Arial,sans-serif;}
+.caso-card-badge{font-size:11px;background:#e8ecf8;color:#20409A;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-left:10px;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.caso-card-segmento{font-size:12px;color:#888;margin-bottom:7px}
+.caso-card-soluciones{font-size:12px;color:#555;font-style:italic;margin-bottom:7px}
+.caso-card-resumen{font-size:13px;color:#222;margin-bottom:7px;line-height:1.55}
+.caso-resultados{list-style:none;padding:0;margin:0}
+.caso-resultados li{font-size:13px;color:#333;margin-bottom:3px;display:flex;gap:6px;line-height:1.4}
+.caso-resultados li::before{content:"✓";color:#20409A;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.cert-item{display:flex;gap:12px;align-items:flex-start;padding:10px 13px;border:1px solid #dde3f0;border-radius:7px;background:#fff;page-break-inside:avoid}
+.cert-icon{flex-shrink:0;width:46px;height:46px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-align:center;line-height:1.2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cert-icon.iso{background:#20409A;color:#fff}
+.cert-icon.policia{background:#2e5fa3;color:#fff}
+.cert-icon.gptw{background:#c0392b;color:#fff}
+.cert-icon.tecnico{background:#27ae60;color:#fff}
+.cert-item-text .cert-title{font-size:13px;font-weight:700;color:#111;margin-bottom:2px}
+.cert-item-text .cert-sub{font-size:12px;color:#666;line-height:1.4}
+.cert-legal-box{border:1px solid #20409A;border-top:4px solid #1EB0D5;border-radius:7px;padding:14px 18px;margin-top:14px;background:#f7f9ff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid}
+.cert-legal-title{font-size:14px;font-weight:700;color:#20409A;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #dde3f0;font-family:'Assistant',Arial,sans-serif;}
+.cert-legal-text{font-size:13px;color:#333;line-height:1.65;margin-bottom:10px}
+.carta-hr{border:none;border-top:1px solid #e0e4ec;margin:20px 0}
+.firma-block{page-break-inside:avoid;page-break-before:avoid}
+.carta-firma{text-align:right}
+.carta-firma .firma-nombre{font-size:15px;font-weight:700;color:#20409A;font-family:'Assistant',Arial,sans-serif;}
+.carta-firma .firma-cargo,.carta-firma .firma-empresa{font-size:13px;color:#666;margin-top:2px}
+.carta-confid{font-size:11px;color:#aaa;border-top:1px solid #f0f0f0;padding:10px 0 0;text-align:center;margin-top:18px}
+</style></head>
+<body><div class="carta">${body}</div></body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+// ═══ SAVE / LOAD DRAFT ════════════════════════════════════════
+function saveDraft() {
+  const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const draft = {
+    empresa: get('empresa'), ruc: get('ruc-cliente'),
+    destinatario: get('destinatario'),
+    gc: get('gc'), gcEmail: get('gc-email'),
+    tipoProp: get('tipo-propuesta'), solucion: get('solucion'),
+    empresaEmisora: get('empresa-emisora'),
+    textoDescripcion: get('texto-descripcion'),
+    cotSections: state.cotSections.map(s => ({id: s.id, solucion: s.solucion, raw: s.raw, moneda: s.moneda || 'USD'})),
+    matDetalle: state.showMatDetalle,
+    pagoAnticipo: get('pago-anticipo'),
+    pagoSaldoTipo: (document.querySelector('input[name="pago-saldo-tipo"]:checked') && document.querySelector('input[name="pago-saldo-tipo"]:checked').value) || 'unica',
+    pagoCuotas: [...document.querySelectorAll('.cuota-row')].map(r => ({pct: (r.querySelector('.cuota-pct') && r.querySelector('.cuota-pct').value) || '', desc: (r.querySelector('.cuota-desc') && r.querySelector('.cuota-desc').value) || ''})),
+    pagoIva: get('pago-iva'), pagoNota: get('pago-nota'),
+    peNum: get('pe-num'), peUnit: get('pe-unit'),
+    piNum: get('pi-num'), piUnit: get('pi-unit'),
+    garEqNum: get('gar-eq-num'), garEqUnit: get('gar-eq-unit'),
+    garMoRad: (document.querySelector('input[name="gar-mo-rad"]:checked') && document.querySelector('input[name="gar-mo-rad"]:checked').value) || '',
+    beneficios: [...document.querySelectorAll('#beneficios-list .beneficio-row input')].map(i => i.value),
+    alcanceSiCustom: [...document.querySelectorAll('#alcance-si-custom-list .custom-item-row input')].map(i => i.value),
+    alcanceNoCustom: [...document.querySelectorAll('#alcance-no-custom-list .custom-item-row input')].map(i => i.value),
+    condPrevCustom: [...document.querySelectorAll('#cond-prev-custom-list .custom-item-row input')].map(i => i.value),
+    beneficio: get('beneficio-adicional'),
+    confid: document.getElementById('incluir-confid')?.checked || false,
+    casos: state.casosSeleccionados || [],
+    savedAt: new Date().toLocaleString('es-PY')
+  };
+  localStorage.setItem('protek_draft', JSON.stringify(draft));
+  alert(`Borrador guardado (${draft.savedAt})`);
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem('protek_draft');
+  if (!raw) { alert('No hay borrador guardado.'); return; }
+  const d = JSON.parse(raw);
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+  set('empresa', d.empresa); set('ruc-cliente', d.ruc);
+  set('destinatario', d.destinatario);
+  set('gc', d.gc); set('gc-email', d.gcEmail);
+  set('tipo-propuesta', d.tipoProp); set('solucion', d.solucion);
+  if (d.empresaEmisora) set('empresa-emisora', d.empresaEmisora);
+  if (d.textoDescripcion) {
+    set('texto-descripcion', d.textoDescripcion);
+    const b = document.getElementById('textos-solucion-block');
+    if (b) b.style.display = 'block';
+  } else if (d.solucion) { onSolucionChange(); }
+  // Restore beneficios list
+  if (d.beneficios && d.beneficios.length) {
+    const l = document.getElementById('beneficios-list');
+    if (l) { l.innerHTML = ''; d.beneficios.forEach(b => addBeneficioItem(b)); }
+  }
+  // Restore cot sections
+  if (d.cotSections && d.cotSections.length) {
+    state.cotSections = d.cotSections.map(s => ({id: s.id, solucion: s.solucion, raw: s.raw, inv: s.raw ? parseTSV(s.raw) : null, moneda: s.moneda || 'USD'}));
+    cotSectionCounter = Math.max(...state.cotSections.map(s => s.id));
+    renderCotSections();
+  } else { initCotSections(); }
+  if (d.matDetalle) { state.showMatDetalle = true; const t = document.getElementById('mat-detalle-toggle'); if (t) t.checked = true; }
+  // Restore pago
+  if (d.pagoAnticipo) { set('pago-anticipo', d.pagoAnticipo); onPagoCalcChange(); }
+  if (d.pagoSaldoTipo) {
+    const radios = document.querySelectorAll('input[name="pago-saldo-tipo"]');
+    radios.forEach(r => { if (r.value === d.pagoSaldoTipo) r.checked = true; });
+    onPagoSaldoTipo();
+  }
+  if (d.pagoCuotas && d.pagoCuotas.length) {
+    d.pagoCuotas.forEach(c => {
+      addPagoCuota();
+      const rows = document.querySelectorAll('.cuota-row');
+      const last = rows[rows.length-1];
+      if (last) {
+        const p = last.querySelector('.cuota-pct');
+        const desc = last.querySelector('.cuota-desc');
+        if (p) p.value = c.pct;
+        if (desc) desc.value = c.desc;
+      }
+    });
+    updatePagoStatus();
+  }
+  set('pago-iva', d.pagoIva); set('pago-nota', d.pagoNota);
+  // Restore plazos
+  if (d.peNum) { set('pe-num', d.peNum); set('pe-unit', d.peUnit || 'meses'); }
+  if (d.piNum) { set('pi-num', d.piNum); set('pi-unit', d.piUnit || 'meses'); }
+  // Restore garantías
+  if (d.garEqNum) { set('gar-eq-num', d.garEqNum); set('gar-eq-unit', d.garEqUnit || 'meses'); }
+  if (d.garMoRad) { const r = document.querySelector(`input[name="gar-mo-rad"][value="${d.garMoRad}"]`); if (r) r.checked = true; }
+  // Restore alcance custom items
+  if (d.alcanceSiCustom) { d.alcanceSiCustom.forEach(v => { addCustomItem('alcance-si'); const rows = document.querySelectorAll('#alcance-si-custom-list .custom-item-row input'); if (rows.length) rows[rows.length-1].value = v; }); }
+  if (d.alcanceNoCustom) { d.alcanceNoCustom.forEach(v => { addCustomItem('alcance-no'); const rows = document.querySelectorAll('#alcance-no-custom-list .custom-item-row input'); if (rows.length) rows[rows.length-1].value = v; }); }
+  if (d.condPrevCustom) { d.condPrevCustom.forEach(v => { addCustomItem('cond-prev'); const rows = document.querySelectorAll('#cond-prev-custom-list .custom-item-row input'); if (rows.length) rows[rows.length-1].value = v; }); }
+  set('beneficio-adicional', d.beneficio);
+  if (d.confid) document.getElementById('incluir-confid').checked = true;
+  if (d.casos) { state.casosSeleccionados = d.casos; buildCasosGrid(); }
+  alert(`Borrador cargado (guardado el ${d.savedAt})`);
+}
+
+// ═══ INIT ═════════════════════════════════════════════════════
+showStep(1);
+initCotSections();
+</script>
+</body>
+</html>
