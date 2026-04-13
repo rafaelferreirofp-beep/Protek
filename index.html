@@ -2031,11 +2031,10 @@ function buildCarta() {
       html += `</ul></div></div>`;
     }
     if (pagoTxt) {
-      const pagoModo = (document.querySelector('input[name="pago-modo"]:checked') || {}).value || 'CAPEX';
       html += `<div><div class="carta-pill">Forma de pago</div>
         <div class="carta-box">
           <p style="margin-bottom:8px">${pagoTxt}</p>
-          <p style="font-size:13px;color:#555;margin-bottom:0"><strong>Modalidad:</strong> ${pagoModo} &nbsp;·&nbsp; <strong>Moneda:</strong> USD &nbsp;·&nbsp; <strong>IVA:</strong> ${iva}</p>
+          <p style="font-size:13px;color:#555;margin-bottom:0"><strong>Moneda:</strong> USD &nbsp;·&nbsp; <strong>IVA:</strong> ${iva}</p>
         </div></div>`;
     }
     html += `</div>`;
