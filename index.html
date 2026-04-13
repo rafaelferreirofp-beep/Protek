@@ -1004,6 +1004,9 @@ function fmtUSD(n) {
 }
 
 function parseTSV(raw) {
+  // Collapse newlines embedded inside quoted fields (e.g. SKU with line break)
+  raw = raw.replace(/"[^"]*"/g, m => m.replace(/[\r\n]+/g, ' ').replace(/^"|"$/g, ''));
+
   const lines = raw.split('\n').map(l => l.split('\t').map(c => (c||'').trim()));
 
   // ── Format detection ──────────────────────────────────────────
@@ -1022,9 +1025,12 @@ function parseTSV(raw) {
   let moTotal = 0, matTotal = 0;
   let section = 'equipos'; // used by Format A
 
-  // Patterns for Mano de Obra / Materiales in Format B (flat list)
-  const isMO  = s => /^(mano\s+de\s+obra|movilidad|viatico|courrier|seguro)/i.test(s);
+  // Patterns for Mano de Obra / Materiales
+  const isMO  = s => /^(mano\s+de\s+obra|m\.o\.|movilidad|viatico|courrier|seguro)/i.test(s);
   const isMat = s => /^materiales/i.test(s);
+  // Section header patterns (matches col values like "MANO DE OBRAS", "MATERIALES CCTV", etc.)
+  const isMOHeader  = s => /^MANO\s+DE\s+OBRAS?$/i.test(s.trim());
+  const isMatHeader = s => /^MATERIALES/i.test(s.trim());
 
   for (const cols of lines) {
     if (formatB) {
@@ -1041,23 +1047,45 @@ function parseTSV(raw) {
       else if (isMat(desc)) { matTotal += total; matItems.push({ desc: toTitleCase(desc), cantidad: qty, precioUnit: parseNumES(punit), total }); }
       else equipos.push({ desc: toTitleCase(desc), cantidad: qty, precioUnit: parseNumES(punit), total });
     } else {
-      // Format A: col[0]=item, col[1]=SKU, col[2]=desc, col[3]=qty, col[4]=punit, col[5]=total
+      // Format A: col[0]=item/prefix, col[1]=SKU, col[2]=desc, col[3]=qty, col[4]=punit, col[5]=total
       const col0 = cols[0] || '';
+      const col1 = cols[1] || '';
       const col2 = cols[2] || '';
       const col3 = cols[3] || '';
       const col4 = cols[4] || '';
       const col5 = cols[5] || '';
-      if (/^MANO\s+DE\s+OBRA$/i.test(col0))  { section = 'mo';  continue; }
-      if (/^MATERIALES?$/i.test(col0))        { section = 'mat'; continue; }
+
+      // ── Section header detection ──────────────────────────────
+      // Only detect from col0 or col1 (never col2 — that's the description field)
+      // A section header row has no valid numeric total in col5
+      const noTotal = !parseNumES(col5);
+      const anyColMO  = isMOHeader(col0)  || isMOHeader(col1);
+      const anyColMat = isMatHeader(col0) || isMatHeader(col1);
+      if (anyColMO  && noTotal) { section = 'mo';  continue; }
+      if (anyColMat && noTotal) { section = 'mat'; continue; }
+
+      // Skip structural rows
       if (col0 === 'ITEM') continue;
-      if (col2.toUpperCase().startsWith('SOLUCION DE')) continue;
       if (!col2) continue;
+      if (col2.toUpperCase().startsWith('SOLUCION DE')) continue;
+
       const total = parseNumES(col5);
       if (!total) continue;
-      if (section === 'equipos') {
-        equipos.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total });
-      } else if (section === 'mo')  { moTotal  += total; }
-      else if (section === 'mat')   { matTotal += total; matItems.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total }); }
+
+      // ── Route the item ────────────────────────────────────────
+      // Once inside an explicit section, everything goes there.
+      // Only use description-based detection as fallback when still in 'equipos'.
+      if (section === 'mo') {
+        moTotal += total;
+      } else if (section === 'mat') {
+        matTotal += total;
+        matItems.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total });
+      } else {
+        // section === 'equipos': use description to detect MO/MAT before explicit header
+        if (isMO(col2))       { moTotal  += total; }
+        else if (isMat(col2)) { matTotal += total; matItems.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total }); }
+        else                  { equipos.push({ desc: toTitleCase(col2), cantidad: col3, precioUnit: parseNumES(col4), total }); }
+      }
     }
   }
   return { equipos, moTotal, matTotal, matItems };
