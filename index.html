@@ -424,25 +424,62 @@ body{font-family:'Open Sans',Arial,sans-serif;background:#f4f6f9;color:#111;font
       <div class="cond-grid section-block">
         <div>
           <div class="section-block-title">Forma de pago</div>
-          <div class="field">
-            <label>Anticipo (%)</label>
-            <input type="number" id="pago-anticipo" min="0" max="100" placeholder="Ej: 50" oninput="onPagoCalcChange()" style="max-width:120px">
+          <div class="field" style="margin-bottom:12px">
+            <label>Modalidad</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="font-weight:400"><input type="radio" name="pago-modo" value="CAPEX" checked onchange="onPagoModoChange()"> CAPEX</label>
+              <label style="font-weight:400"><input type="radio" name="pago-modo" value="OPEX" onchange="onPagoModoChange()"> OPEX</label>
+              <label style="font-weight:400"><input type="radio" name="pago-modo" value="AMBOS" onchange="onPagoModoChange()"> Ambos</label>
+            </div>
           </div>
-          <div id="pago-saldo-block" style="display:none;margin-top:8px">
-            <p style="font-size:13px;margin:4px 0 8px">Saldo: <strong id="pago-saldo-pct">0</strong>%</p>
+
+          <!-- CAPEX block -->
+          <div id="pago-capex-block">
             <div class="field">
-              <label>Distribución del saldo</label>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="unica" checked onchange="onPagoSaldoTipo()"> En una sola cuota</label>
-                <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="cuotas" onchange="onPagoSaldoTipo()"> En cuotas personalizadas</label>
+              <label>Anticipo (%)</label>
+              <input type="number" id="pago-anticipo" min="0" max="100" placeholder="Ej: 50" oninput="onPagoCalcChange()" style="max-width:120px">
+            </div>
+            <div id="pago-saldo-block" style="display:none;margin-top:8px">
+              <p style="font-size:13px;margin:4px 0 8px">Saldo: <strong id="pago-saldo-pct">0</strong>%</p>
+              <div class="field">
+                <label>Distribución del saldo</label>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="unica" checked onchange="onPagoSaldoTipo()"> En una sola cuota</label>
+                  <label style="font-weight:400"><input type="radio" name="pago-saldo-tipo" value="cuotas" onchange="onPagoSaldoTipo()"> En cuotas personalizadas</label>
+                </div>
+              </div>
+              <div id="pago-cuotas-block" style="display:none;margin-top:8px">
+                <div id="pago-cuotas-list"></div>
+                <button type="button" class="btn-secondary" style="font-size:12px;padding:4px 12px;margin-top:4px" onclick="addPagoCuota()">＋ Agregar cuota</button>
+                <div id="pago-cuotas-status" style="margin-top:6px;font-size:12px;font-weight:600"></div>
               </div>
             </div>
-            <div id="pago-cuotas-block" style="display:none;margin-top:8px">
-              <div id="pago-cuotas-list"></div>
-              <button type="button" class="btn-secondary" style="font-size:12px;padding:4px 12px;margin-top:4px" onclick="addPagoCuota()">＋ Agregar cuota</button>
-              <div id="pago-cuotas-status" style="margin-top:6px;font-size:12px;font-weight:600"></div>
+          </div>
+
+          <!-- OPEX block -->
+          <div id="pago-opex-block" style="display:none;margin-top:4px">
+            <div class="field">
+              <label>Cuota mensual</label>
+              <input type="number" id="pago-opex-cuota" min="0" placeholder="Ej: 1500" style="max-width:180px">
+            </div>
+            <div class="field">
+              <label>Cantidad de meses</label>
+              <input type="number" id="pago-opex-meses" min="1" placeholder="Ej: 36" style="max-width:120px">
+            </div>
+            <div class="field">
+              <label style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" id="pago-opex-residual-check" onchange="onOpexResidualCheck()">
+                Aplica cuota residual al término del contrato
+              </label>
+            </div>
+            <div id="pago-opex-residual-block" style="display:none">
+              <div class="field">
+                <label>Monto cuota residual</label>
+                <input type="number" id="pago-opex-residual" min="0" placeholder="Ej: 5000" style="max-width:180px">
+              </div>
             </div>
           </div>
+
           <!-- IVA y nota -->
           <div class="pago-complement">
             <div class="field">
@@ -836,6 +873,7 @@ function getCotSolOptions() {
       <option>Alarmas de Intrusión</option>
       <option>Detección de Incendio (PCI)</option>
       <option>Extinción de Incendio</option>
+      <option>Incendio e Intrusión (Integrados)</option>
       <option>Seguridad Electrónica Integral</option>
     </optgroup>
     <optgroup label="Soluciones Integradas / SaaS">
@@ -843,12 +881,17 @@ function getCotSolOptions() {
       <option>Monitoreo de Imágenes / SaaS</option>
       <option>Monitoreo de Obras</option>
       <option>BMS / Automatización</option>
+      <option>Licencias</option>
     </optgroup>
     <optgroup label="Servicios">
       <option>Oficiales de Seguridad Integrados</option>
       <option>Infraestructura de Redes</option>
       <option>Mantenimiento Preventivo / Correctivo</option>
       <option>Evaluación de Riesgos / Ingeniería / Diagnóstico</option>
+      <option>Auditoría Técnica</option>
+      <option>Cartelería</option>
+      <option>Ductos</option>
+      <option>Ductos y/o Bandejas</option>
     </optgroup>`;
 }
 
@@ -1547,32 +1590,72 @@ function updatePagoStatus() {
   }
 }
 
+function onPagoModoChange() {
+  const modo = (document.querySelector('input[name="pago-modo"]:checked') || {}).value || 'CAPEX';
+  const capex = document.getElementById('pago-capex-block');
+  const opex  = document.getElementById('pago-opex-block');
+  if (capex) capex.style.display = (modo === 'OPEX')  ? 'none' : '';
+  if (opex)  opex.style.display  = (modo === 'CAPEX') ? 'none' : '';
+}
+
+function onOpexResidualCheck() {
+  const checked = document.getElementById('pago-opex-residual-check') && document.getElementById('pago-opex-residual-check').checked;
+  const block = document.getElementById('pago-opex-residual-block');
+  if (block) block.style.display = checked ? '' : 'none';
+}
+
 function getPagoTexto() {
-  const a = parseInt(document.getElementById('pago-anticipo') && document.getElementById('pago-anticipo').value) || 0;
-  const saldo = 100 - a;
-  if (!a) {
-    const nota = document.getElementById('pago-nota') && document.getElementById('pago-nota').value.trim();
-    return nota || '';
-  }
-  const tipoEl = document.querySelector('input[name="pago-saldo-tipo"]:checked');
-  const tipo = tipoEl ? tipoEl.value : 'unica';
-  let txt = `${a}% de anticipo con la aprobación de la propuesta.`;
-  if (saldo > 0) {
-    if (tipo === 'unica') {
-      txt += ` Saldo (${saldo}%) contra entrega.`;
-    } else {
-      const cuotas = [...document.querySelectorAll('.cuota-row')].map(r => {
-        const pct = r.querySelector('.cuota-pct') && r.querySelector('.cuota-pct').value || '';
-        const desc = r.querySelector('.cuota-desc') && r.querySelector('.cuota-desc').value.trim() || '';
-        return (pct && desc) ? `${pct}% ${desc}` : (pct ? `${pct}%` : '');
-      }).filter(Boolean);
-      if (cuotas.length) {
-        txt += ` Saldo en ${cuotas.length} cuota${cuotas.length > 1 ? 's' : ''}: ${cuotas.join(', ')}.`;
+  const modo = (document.querySelector('input[name="pago-modo"]:checked') || {}).value || 'CAPEX';
+  const nota = document.getElementById('pago-nota') && document.getElementById('pago-nota').value.trim();
+
+  let capexTxt = '';
+  if (modo !== 'OPEX') {
+    const a = parseInt(document.getElementById('pago-anticipo') && document.getElementById('pago-anticipo').value) || 0;
+    const saldo = 100 - a;
+    if (a) {
+      const tipoEl = document.querySelector('input[name="pago-saldo-tipo"]:checked');
+      const tipo = tipoEl ? tipoEl.value : 'unica';
+      capexTxt = `${a}% de anticipo con la aprobación de la propuesta.`;
+      if (saldo > 0) {
+        if (tipo === 'unica') {
+          capexTxt += ` Saldo (${saldo}%) contra entrega.`;
+        } else {
+          const cuotas = [...document.querySelectorAll('.cuota-row')].map(r => {
+            const pct = r.querySelector('.cuota-pct') && r.querySelector('.cuota-pct').value || '';
+            const desc = r.querySelector('.cuota-desc') && r.querySelector('.cuota-desc').value.trim() || '';
+            return (pct && desc) ? `${pct}% ${desc}` : (pct ? `${pct}%` : '');
+          }).filter(Boolean);
+          if (cuotas.length) capexTxt += ` Saldo en ${cuotas.length} cuota${cuotas.length > 1 ? 's' : ''}: ${cuotas.join(', ')}.`;
+        }
       }
     }
   }
-  const nota = document.getElementById('pago-nota') && document.getElementById('pago-nota').value.trim();
-  if (nota) txt += ' ' + nota;
+
+  let opexTxt = '';
+  if (modo !== 'CAPEX') {
+    const cuota  = document.getElementById('pago-opex-cuota') && document.getElementById('pago-opex-cuota').value;
+    const meses  = document.getElementById('pago-opex-meses') && document.getElementById('pago-opex-meses').value;
+    const aplica = document.getElementById('pago-opex-residual-check') && document.getElementById('pago-opex-residual-check').checked;
+    const resid  = document.getElementById('pago-opex-residual') && document.getElementById('pago-opex-residual').value;
+    if (cuota || meses) {
+      opexTxt = `Modalidad OPEX`;
+      if (cuota) opexTxt += `: cuota mensual USD ${parseFloat(cuota).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+      if (meses) opexTxt += `, por ${meses} meses`;
+      if (aplica && resid) opexTxt += `. Cuota residual al término del contrato: USD ${parseFloat(resid).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+      opexTxt += '.';
+    }
+  }
+
+  let txt = '';
+  if (modo === 'AMBOS') {
+    const items = [];
+    if (capexTxt) items.push(`<strong>Opción CAPEX:</strong> ${capexTxt}`);
+    if (opexTxt)  items.push(`<strong>Opción OPEX:</strong> ${opexTxt}`);
+    txt = items.join('<br>');
+  } else {
+    txt = [capexTxt, opexTxt].filter(Boolean).join(' ');
+  }
+  if (nota) txt += (txt ? '<br>' : '') + nota;
   return txt;
 }
 
@@ -1948,10 +2031,11 @@ function buildCarta() {
       html += `</ul></div></div>`;
     }
     if (pagoTxt) {
+      const pagoModo = (document.querySelector('input[name="pago-modo"]:checked') || {}).value || 'CAPEX';
       html += `<div><div class="carta-pill">Forma de pago</div>
         <div class="carta-box">
           <p style="margin-bottom:8px">${pagoTxt}</p>
-          <p style="font-size:13px;color:#555;margin-bottom:0"><strong>Moneda:</strong> USD &nbsp;·&nbsp; <strong>IVA:</strong> ${iva}</p>
+          <p style="font-size:13px;color:#555;margin-bottom:0"><strong>Modalidad:</strong> ${pagoModo} &nbsp;·&nbsp; <strong>Moneda:</strong> USD &nbsp;·&nbsp; <strong>IVA:</strong> ${iva}</p>
         </div></div>`;
     }
     html += `</div>`;
@@ -2156,10 +2240,14 @@ function saveDraft() {
     textoDescripcion: get('texto-descripcion'),
     cotSections: state.cotSections.map(s => ({id: s.id, solucion: s.solucion, raw: s.raw, moneda: s.moneda || 'USD'})),
     matDetalle: state.showMatDetalle,
+    pagoModo: (document.querySelector('input[name="pago-modo"]:checked') && document.querySelector('input[name="pago-modo"]:checked').value) || 'CAPEX',
     pagoAnticipo: get('pago-anticipo'),
     pagoSaldoTipo: (document.querySelector('input[name="pago-saldo-tipo"]:checked') && document.querySelector('input[name="pago-saldo-tipo"]:checked').value) || 'unica',
     pagoCuotas: [...document.querySelectorAll('.cuota-row')].map(r => ({pct: (r.querySelector('.cuota-pct') && r.querySelector('.cuota-pct').value) || '', desc: (r.querySelector('.cuota-desc') && r.querySelector('.cuota-desc').value) || ''})),
     pagoIva: get('pago-iva'), pagoNota: get('pago-nota'),
+    pagoOpexCuota: get('pago-opex-cuota'), pagoOpexMeses: get('pago-opex-meses'),
+    pagoOpexResidualCheck: document.getElementById('pago-opex-residual-check') && document.getElementById('pago-opex-residual-check').checked,
+    pagoOpexResidual: get('pago-opex-residual'),
     peNum: get('pe-num'), peUnit: get('pe-unit'),
     piNum: get('pi-num'), piUnit: get('pi-unit'),
     garEqNum: get('gar-eq-num'), garEqUnit: get('gar-eq-unit'),
@@ -2205,6 +2293,18 @@ function loadDraft() {
   } else { initCotSections(); }
   if (d.matDetalle) { state.showMatDetalle = true; const t = document.getElementById('mat-detalle-toggle'); if (t) t.checked = true; }
   // Restore pago
+  if (d.pagoModo) {
+    const r = document.querySelector(`input[name="pago-modo"][value="${d.pagoModo}"]`);
+    if (r) r.checked = true;
+    onPagoModoChange();
+  }
+  if (d.pagoOpexCuota) set('pago-opex-cuota', d.pagoOpexCuota);
+  if (d.pagoOpexMeses) set('pago-opex-meses', d.pagoOpexMeses);
+  if (d.pagoOpexResidualCheck) {
+    const cb = document.getElementById('pago-opex-residual-check');
+    if (cb) { cb.checked = true; onOpexResidualCheck(); }
+  }
+  if (d.pagoOpexResidual) set('pago-opex-residual', d.pagoOpexResidual);
   if (d.pagoAnticipo) { set('pago-anticipo', d.pagoAnticipo); onPagoCalcChange(); }
   if (d.pagoSaldoTipo) {
     const radios = document.querySelectorAll('input[name="pago-saldo-tipo"]');
